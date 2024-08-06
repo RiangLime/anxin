@@ -16,7 +16,7 @@ import java.net.InetAddress;
  * @author riang
  */
 @SpringBootApplication
-@MapperScan({"cn.lime.core.mapper","cn.lime.anxin.mapper"})
+@MapperScan({"cn.lime.core.mapper","cn.lime.anxin.mapper","cn.lime.mall.mapper"})
 @Slf4j
 @EnableScheduling
 public class AnxinRunner {

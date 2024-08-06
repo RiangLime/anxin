@@ -2,7 +2,6 @@ package cn.lime.anxin.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 /**
  * @ClassName: AppConfig
@@ -11,6 +10,6 @@ import org.springframework.stereotype.Component;
  * @Date: 2024/7/31 11:07
  */
 @Configuration
-@ComponentScan(basePackages = {"cn.lime.core"})
-public class AppConfig {
+@ComponentScan(basePackages = {"cn.lime.core","cn.lime.mall"})
+public class AnXinConfig {
 }
