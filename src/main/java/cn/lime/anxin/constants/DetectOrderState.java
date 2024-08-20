@@ -8,9 +8,10 @@ package cn.lime.anxin.constants;
  */
 public enum DetectOrderState {
     TO_BE_SAMPLING(0),
-    RETURNING(1),
-    DETECTING(2),
-    FINISH(3)
+    READY_TO_RETURN(1),
+    RETURNING(2),
+    DETECTING(3),
+    FINISH(4)
 
     ;
     private final int val;

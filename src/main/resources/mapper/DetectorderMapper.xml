@@ -19,6 +19,7 @@
             <result property="reportIsNormal" column="report_is_normal" jdbcType="TINYINT"/>
             <result property="reportTime" column="report_time" jdbcType="BIGINT"/>
             <result property="reportUrl" column="report_url" jdbcType="VARCHAR"/>
+            <result property="contactorUrl" column="contactor_url" jdbcType="VARCHAR"/>
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
             <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -28,7 +29,7 @@
         code,qrcode,bind_user_id,
         bind_time,return_deliver_company,return_deliver_id,
         detect_state,report_title,report_is_normal,
-        report_time,report_url,gmt_created,
-        gmt_modified
+        report_time,report_url,contactor_url,
+        gmt_created,gmt_modified
     </sql>
 </mapper>

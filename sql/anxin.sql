@@ -13,7 +13,8 @@ create table DetectOrder
     report_title           nvarchar(255) null comment '报告标题',
     report_is_normal       tinyint       null comment '是否正常',
     report_time            bigint        null comment '报告时间',
-    report_url             nvarchar(255) comment '报告URL JSON List',
+    report_url             nvarchar(255) default '[]' comment '报告URL JSON List',
+    contactor_url          nvarchar(255) default '[]' comment '医师联系方式 JSON List',
     gmt_created            timestamp default CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified           timestamp default null on update CURRENT_TIMESTAMP comment '修改时间'
 );

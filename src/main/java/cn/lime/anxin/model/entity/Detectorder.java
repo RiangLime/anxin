@@ -100,6 +100,12 @@ public class Detectorder implements Serializable {
     private String reportUrl;
 
     /**
+     * 医师联系方式 JSON List
+     */
+    @TableField(value = "contactor_url")
+    private String contactorUrl;
+
+    /**
      * 创建时间
      */
     @TableField(value = "gmt_created")

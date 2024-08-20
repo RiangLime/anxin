@@ -6,8 +6,10 @@ import cn.lime.anxin.model.vo.QrCodeVo;
 import cn.lime.anxin.utils.DetectOrderCodeGenerator;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
+import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.threadlocal.ReqThreadLocal;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.anxin.model.entity.Detectorder;
 import cn.lime.anxin.service.db.base.DetectorderService;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -63,6 +66,46 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
                 .set(Detectorder::getDetectState, DetectOrderState.TO_BE_SAMPLING.getVal())
                 .set(Detectorder::getBindTime, new Date())
                 .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
+    }
+
+    @Override
+    public void setReturnDeliverInfo(String code, String deliverCompany, String deliverCode) {
+        Detectorder detectorder = getByCode(code);
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
+                .set(Detectorder::getReturnDeliverId, deliverCode)
+                .set(Detectorder::getReturnDeliverCompany, deliverCompany)
+                .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
+    }
+
+    @Override
+    public void confirmReceiveReturn(String code) {
+        Detectorder detectorder = getByCode(code);
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
+                .set(Detectorder::getDetectState, DetectOrderState.DETECTING.getVal())
+                .update(), ErrorCode.UPDATE_ERROR, "管理员确认收到寄回商品失败");
+    }
+
+    @Override
+    public void confirmReadyToReturn(String code) {
+        Detectorder detectorder = getByCode(code);
+        ThrowUtils.throwIf(!detectorder.getBindUserId().equals(ReqThreadLocal.getInfo().getUserId())
+                        && ReqThreadLocal.getInfo().getAuthLevel() < AuthLevel.ADMIN.getVal(),
+                ErrorCode.NO_AUTH_ERROR, "该二维码绑定用户不是您,您无权操作");
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
+                .set(Detectorder::getDetectState, DetectOrderState.READY_TO_RETURN.getVal())
+                .update(), ErrorCode.UPDATE_ERROR, "用户确认准备寄回商品失败");
+    }
+
+    @Override
+    public void uploadReport(String code, String title, Integer isNormal, List<String> reportUrls, List<String> contactorUrls) {
+        Detectorder detectorder = getByCode(code);
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
+                .set(Detectorder::getDetectState, DetectOrderState.FINISH.getVal())
+                .set(Detectorder::getReportTitle, title)
+                .set(Detectorder::getReportIsNormal, isNormal)
+                .set(Detectorder::getReportUrl, JSON.toJSONString(reportUrls))
+                .set(Detectorder::getContactorUrl, JSON.toJSONString(contactorUrls))
+                .update(), ErrorCode.UPDATE_ERROR, "用户确认准备寄回商品失败");
     }
 }
 
