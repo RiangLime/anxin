@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.anxin.mapper.AdvertisementMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.Advertisement">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="picture" column="picture" jdbcType="VARCHAR"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="listVo" type="cn.lime.anxin.model.vo.AdListVo">
+        <id property="adId" column="id" jdbcType="INTEGER"/>
+        <result property="adTitle" column="title" jdbcType="NVARCHAR"/>
+        <result property="adPicture" column="picture" jdbcType="VARCHAR"/>
+        <result property="adCreateTime" column="create_time" jdbcType="BIGINT"/>
+        <result property="adViewCount" column="view_count" jdbcType="INTEGER"/>
+    </resultMap>
+    <resultMap id="detailVo" type="cn.lime.anxin.model.vo.AdDetailVo">
+        <id property="adId" column="id" jdbcType="INTEGER"/>
+        <result property="adTitle" column="title" jdbcType="NVARCHAR"/>
+        <result property="adPicture" column="picture" jdbcType="VARCHAR"/>
+        <result property="adCreateTime" column="create_time" jdbcType="BIGINT"/>
+        <result property="adViewCount" column="view_count" jdbcType="INTEGER"/>
+        <collection property="structures" ofType="cn.lime.anxin.model.vo.AdStructureVo">
+            <id property="serialId" column="serial_id" jdbcType="INTEGER"/>
+            <result property="type" column="struct_type" jdbcType="INTEGER"/>
+            <result property="content" column="struct_content" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,picture,
+        gmt_created
+    </sql>
+    <select id="listAds" resultMap="listVo">
+        SELECT
+            a.id,
+            a.title ,
+            a.picture ,
+            UNIX_TIMESTAMP(a.gmt_created) as create_time ,
+            SUM(avl.id) as view_count
+        FROM
+            Advertisement a
+                left join AdViewLog avl on
+                avl.ad_id = a.id
+        GROUP by
+            a.id
+    </select>
+    <select id="getAdDetail" resultType="cn.lime.anxin.model.vo.AdDetailVo">
+        SELECT
+            page.*,
+            ads.serial_id ,
+            ads.struct_type ,
+            ads.struct_content
+        FROM
+            (
+                SELECT
+                    a.id,
+                    a.title ,
+                    a.picture ,
+                    UNIX_TIMESTAMP(a.gmt_created) as create_time ,
+                    SUM(avl.id) as view_count
+                FROM
+                    Advertisement a
+                        left join AdViewLog avl on
+                        avl.ad_id = a.id
+                GROUP by
+                    a.id) page
+                LEFT JOIN AdStructure ads on
+                page.id = ads.ad_id
+        WHERE
+            page.id = #{adId}
+        ORDER BY
+            ads.serial_id
+    </select>
+</mapper>

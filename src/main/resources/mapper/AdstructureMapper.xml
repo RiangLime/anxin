@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.anxin.mapper.AdstructureMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.Adstructure">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="adId" column="ad_id" jdbcType="INTEGER"/>
+            <result property="serialId" column="serial_id" jdbcType="INTEGER"/>
+            <result property="structType" column="struct_type" jdbcType="INTEGER"/>
+            <result property="structContent" column="struct_content" jdbcType="VARCHAR"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,ad_id,serial_id,
+        struct_type,struct_content,gmt_created
+    </sql>
+</mapper>

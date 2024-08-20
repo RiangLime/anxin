@@ -1,4 +1,4 @@
-package cn.lime.anxin.service.db;
+package cn.lime.anxin.service.db.extend;
 
 import cn.lime.anxin.model.vo.DailyNewUserCount;
 import cn.lime.core.module.entity.User;
