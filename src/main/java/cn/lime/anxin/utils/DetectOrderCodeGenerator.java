@@ -15,24 +15,20 @@ public class DetectOrderCodeGenerator {
     private static final Random RANDOM = new Random();
 
     public static String generateUniqueCode() {
-        // 获取当前时间戳并格式化为yyyyMMddHHmmssSSS
-        String timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+        // 获取当前时间戳，精确到毫秒
+        long timestamp = System.currentTimeMillis();
 
-        // 获取时间戳的最后9位，保证时间戳部分的长度适合插入到编码中
-        String timestampPart = timestamp.substring(timestamp.length() - 9);
+        // 获取时间戳的后8位
+        String timestampStr = String.valueOf(timestamp).substring(5);
 
-        // 生成6位随机字符
-        StringBuilder randomPart = new StringBuilder(6);
-        for (int i = 0; i < 6; i++) {
-            randomPart.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
-        }
+        // 生成一个4位随机数
+        Random random = new Random();
+        int randomNum = random.nextInt(9000) + 1000; // 保证是4位数
 
-        // 拼接时间戳部分和随机部分
-        String fullCode = timestampPart + randomPart.toString();
+        // 组合时间戳和随机数
+        String code = timestampStr + randomNum;
 
-        // 插入'-'分隔符
-        return fullCode.substring(0, 5) + "-" +
-                fullCode.substring(5, 10) + "-" +
-                fullCode.substring(10, 15);
+        // 格式化成每4位用-隔开的形式
+        return code.substring(0, 4) + "-" + code.substring(4, 8) + "-" + code.substring(8, 12);
     }
 }

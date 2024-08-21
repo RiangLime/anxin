@@ -33,6 +33,9 @@ public class Detectorder implements Serializable {
     @TableField(value = "sku_id")
     private Long skuId;
 
+    @TableField(value = "order_id")
+    private Long orderId;
+
     /**
      * 数字编码
      */
@@ -80,6 +83,9 @@ public class Detectorder implements Serializable {
      */
     @TableField(value = "report_title")
     private String reportTitle;
+
+    @TableField(value = "report_name")
+    private String reportName;
 
     /**
      * 是否正常

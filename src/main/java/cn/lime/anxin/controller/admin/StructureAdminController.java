@@ -1,10 +1,9 @@
 package cn.lime.anxin.controller.admin;
 
-import cn.lime.anxin.model.dto.AdAddDto;
-import cn.lime.anxin.model.dto.AdDeleteDto;
-import cn.lime.anxin.model.dto.AdUpdateDto;
-import cn.lime.anxin.model.dto.HomePageUpdateDto;
-import cn.lime.anxin.model.vo.AdListVo;
+import cn.lime.anxin.model.dto.structure.AdAddDto;
+import cn.lime.anxin.model.dto.structure.AdDeleteDto;
+import cn.lime.anxin.model.dto.structure.AdUpdateDto;
+import cn.lime.anxin.model.dto.structure.HomePageUpdateDto;
 import cn.lime.anxin.service.db.base.AdvertisementService;
 import cn.lime.anxin.service.db.base.HomepagestructureService;
 import cn.lime.core.annotation.AuthCheck;
@@ -13,15 +12,12 @@ import cn.lime.core.annotation.RequestLog;
 import cn.lime.core.common.BaseResponse;
 import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
-import cn.lime.core.module.dto.EmptyDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @ClassName: StructureAdminController

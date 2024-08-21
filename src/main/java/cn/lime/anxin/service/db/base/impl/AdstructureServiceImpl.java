@@ -1,6 +1,6 @@
 package cn.lime.anxin.service.db.base.impl;
 
-import cn.lime.anxin.model.dto.AdStructureDto;
+import cn.lime.anxin.model.dto.structure.AdStructureDto;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.ThrowUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

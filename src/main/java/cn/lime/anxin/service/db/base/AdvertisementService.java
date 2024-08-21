@@ -1,6 +1,6 @@
 package cn.lime.anxin.service.db.base;
 
-import cn.lime.anxin.model.dto.AdStructureDto;
+import cn.lime.anxin.model.dto.structure.AdStructureDto;
 import cn.lime.anxin.model.entity.Advertisement;
 import cn.lime.anxin.model.vo.AdDetailVo;
 import cn.lime.anxin.model.vo.AdListVo;

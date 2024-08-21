@@ -24,6 +24,52 @@
             <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <resultMap id="pageVo" type="cn.lime.anxin.model.vo.DetectOrderPageVo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="qrCode" column="qrcode" jdbcType="VARCHAR"/>
+        <result property="state" column="detect_state" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="BIGINT"/>
+
+        <result property="productId" column="product_id" jdbcType="BIGINT"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="productMainUrl" column="main_url" jdbcType="VARCHAR"/>
+        <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="bindUserId" column="bing_user_id" jdbcType="BIGINT"/>
+        <result property="bindUserName" column="bind_user_name" jdbcType="VARCHAR"/>
+        <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
+        <collection property="skuAttributes" ofType="cn.lime.mall.model.vo.SkuAttributeVo">
+            <id property="id" column="att_id" jdbcType="BIGINT"/>
+            <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
+            <result property="attributeName" column="att_name" jdbcType="VARCHAR"/>
+            <result property="attributeValue" column="stt_value" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    <resultMap id="detailVo" type="cn.lime.anxin.model.vo.DetectOrderDetailVo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="qrCode" column="qrcode" jdbcType="VARCHAR"/>
+        <result property="state" column="detect_state" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="BIGINT"/>
+        <result property="relateOrderId" column="order_id" jdbcType="BIGINT"/>
+        <result property="productId" column="product_id" jdbcType="BIGINT"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="productMainUrl" column="main_url" jdbcType="VARCHAR"/>
+        <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="bindUserId" column="bing_user_id" jdbcType="BIGINT"/>
+        <result property="bindUserName" column="bind_user_name" jdbcType="VARCHAR"/>
+        <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
+        <result property="returnDeliverCompany" column="return_deliver_company" jdbcType="VARCHAR"/>
+        <result property="returnDeliverCode" column="return_deliver_id" jdbcType="VARCHAR"/>
+        <collection property="skuAttributes" ofType="cn.lime.mall.model.vo.SkuAttributeVo">
+            <id property="id" column="att_id" jdbcType="BIGINT"/>
+            <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
+            <result property="attributeName" column="att_name" jdbcType="VARCHAR"/>
+            <result property="attributeValue" column="stt_value" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
     <sql id="Base_Column_List">
         id,product_id,sku_id,
         code,qrcode,bind_user_id,
@@ -32,4 +78,85 @@
         report_time,report_url,contactor_url,
         gmt_created,gmt_modified
     </sql>
+    <select id="page" resultMap="pageVo">
+        with pro_main_url as (SELECT pu.product_id,
+                                     pu.url as main_url
+                              FROM Product_Url pu
+                              WHERE pu.url_type = 1)
+        SELECT do.id,
+               do.code,
+               do.qrcode,
+               do.detect_state,
+               UNIX_TIMESTAMP(do.gmt_created) as create_time,
+               do.product_id,
+               p.product_name,
+               pro_main_url.main_url,
+               do.sku_id,
+               s.price,
+               sa.id                          as att_id,
+               sa.attribute_name              as att_name,
+               sa.attribute_value             as att_val,
+               do.bind_user_id,
+               u.name                         as bind_user_name,
+               UNIX_TIMESTAMP(do.bind_time)   as bind_time
+        FROM DetectOrder do
+                 left join Product p on
+            p.product_id = do.product_id
+                 left JOIN pro_main_url on
+            pro_main_url.product_id = do.product_id
+                 left JOIN Sku s on do.sku_id = s.sku_id
+                 LEFT JOIN SkuAttribute sa on s.sku_id = sa.sku_id
+                 LEFT JOIN `User` u on u.user_id = do.bind_user_id
+        where 1=1
+        <if test="bindUserId != null">
+            and do.bind_user_id = #{userId}
+        </if>
+        <if test="bindUserName != null">
+            and u.name like CONCAT('%', #{bindUserName}, '%')
+        </if>
+        <if test="productName != null">
+            and p.product_name like CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="code != null">
+            and do.code like CONCAT('%', #{code}, '%')
+        </if>
+        <if test="state != null">
+            and do.detect_state = #{state}
+        </if>
+        ORDER BY do.gmt_created DESC
+    </select>
+    <select id="detail" resultMap="detailVo">
+        with pro_main_url as (SELECT pu.product_id,
+                                     pu.url as main_url
+                              FROM Product_Url pu
+                              WHERE pu.url_type = 1)
+        SELECT do.id,
+               do.code,
+               do.qrcode,
+               do.order_id,
+               do.detect_state,
+               UNIX_TIMESTAMP(do.gmt_created) as create_time,
+               do.product_id,
+               do.return_deliver_company,
+               do.return_deliver_id,
+               p.product_name,
+               pro_main_url.main_url,
+               do.sku_id,
+               s.price,
+               sa.id                          as att_id,
+               sa.attribute_name              as att_name,
+               sa.attribute_value             as att_val,
+               do.bind_user_id,
+               u.name                         as bind_user_name,
+               UNIX_TIMESTAMP(do.bind_time)   as bind_time
+        FROM DetectOrder do
+                 left join Product p on
+            p.product_id = do.product_id
+                 left JOIN pro_main_url on
+            pro_main_url.product_id = do.product_id
+                 left JOIN Sku s on do.sku_id = s.sku_id
+                 LEFT JOIN SkuAttribute sa on s.sku_id = sa.sku_id
+                 LEFT JOIN `User` u on u.user_id = do.bind_user_id
+        where do.id=#{id}
+    </select>
 </mapper>

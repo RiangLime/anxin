@@ -1,6 +1,6 @@
 package cn.lime.anxin.controller;
 
-import cn.lime.anxin.model.dto.AdDetailDto;
+import cn.lime.anxin.model.dto.structure.AdDetailDto;
 import cn.lime.anxin.model.entity.Homepagestructure;
 import cn.lime.anxin.model.vo.AdDetailVo;
 import cn.lime.anxin.model.vo.AdListVo;
@@ -13,8 +13,6 @@ import cn.lime.core.common.BaseResponse;
 import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.module.dto.EmptyDto;
-import cn.lime.core.threadlocal.ReqThreadLocal;
-import cn.lime.mall.model.vo.CartVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;

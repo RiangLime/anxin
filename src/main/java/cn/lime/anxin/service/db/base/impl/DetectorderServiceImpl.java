@@ -2,14 +2,21 @@ package cn.lime.anxin.service.db.base.impl;
 
 import cn.lime.anxin.config.AnXinParams;
 import cn.lime.anxin.constants.DetectOrderState;
+import cn.lime.anxin.model.vo.DetectOrderDetailVo;
+import cn.lime.anxin.model.vo.DetectOrderPageVo;
 import cn.lime.anxin.model.vo.QrCodeVo;
 import cn.lime.anxin.utils.DetectOrderCodeGenerator;
 import cn.lime.core.common.ErrorCode;
+import cn.lime.core.common.PageResult;
+import cn.lime.core.common.PageUtils;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.threadlocal.ReqThreadLocal;
+import cn.lime.mall.model.vo.OrderDetailVo;
+import cn.lime.mall.service.db.OrderService;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.anxin.model.entity.Detectorder;
 import cn.lime.anxin.service.db.base.DetectorderService;
@@ -37,6 +44,8 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     private SnowFlakeGenerator ids;
     @Resource
     private AnXinParams anXinParams;
+    @Resource
+    private OrderService orderService;
 
     public Detectorder getByCode(String code) {
         Optional<Detectorder> detectorder = lambdaQuery().eq(Detectorder::getCode, code).oneOpt();
@@ -45,12 +54,13 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     }
 
     @Override
-    public QrCodeVo createDetectOrder(Long productId, Long skuId) {
+    public QrCodeVo createDetectOrder(Long productId, Long skuId, Long orderId) {
         Detectorder detectorder = new Detectorder();
         detectorder.setId(ids.nextId());
         detectorder.setCode(DetectOrderCodeGenerator.generateUniqueCode());
         detectorder.setProductId(productId);
         detectorder.setSkuId(skuId);
+        detectorder.setOrderId(orderId);
         detectorder.setQrcode(anXinParams.getQrCodePrefix() + detectorder.getCode());
         ThrowUtils.throwIf(!save(detectorder), ErrorCode.INSERT_ERROR, "生成二维码失败");
         return new QrCodeVo(detectorder.getQrcode(), detectorder.getCode());
@@ -97,15 +107,35 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     }
 
     @Override
-    public void uploadReport(String code, String title, Integer isNormal, List<String> reportUrls, List<String> contactorUrls) {
+    public void uploadReport(String code, String title, String name, Integer isNormal, List<String> reportUrls, List<String> contactorUrls) {
         Detectorder detectorder = getByCode(code);
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getDetectState, DetectOrderState.FINISH.getVal())
                 .set(Detectorder::getReportTitle, title)
+                .set(Detectorder::getReportName, name)
                 .set(Detectorder::getReportIsNormal, isNormal)
                 .set(Detectorder::getReportUrl, JSON.toJSONString(reportUrls))
                 .set(Detectorder::getContactorUrl, JSON.toJSONString(contactorUrls))
                 .update(), ErrorCode.UPDATE_ERROR, "用户确认准备寄回商品失败");
+    }
+
+    @Override
+    public PageResult<DetectOrderPageVo> pageDetectOrders(Long bindUserId, String userName, String productName, String code,
+                                                    Integer state, Integer current, Integer pageSize) {
+        Page<?> page = PageUtils.build(current,pageSize,null,null);
+        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId,userName,productName,code,state,page);
+        return new PageResult<>(res);
+    }
+
+    @Override
+    public DetectOrderDetailVo getDetectOrderDetail(Long id) {
+        DetectOrderDetailVo vo = baseMapper.detail(id);
+        if (ObjectUtils.isNotEmpty(vo.getRelateOrderId())) {
+            OrderDetailVo orderDetailVo = orderService.getOrderDetail(vo.getRelateOrderId());
+            vo.setOrderDetailVo(orderDetailVo);
+        }
+        vo.form();
+        return vo;
     }
 }
 
