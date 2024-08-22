@@ -57,3 +57,10 @@ create table AdViewLog
     user_id     bigint null comment '用户ID',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
 );
+
+create table Distribute_Relation(
+    id bigint not null primary key comment 'id',
+    upper_user_id bigint not null comment '上级分销商ID',
+    lower_user_id bigint not null comment '下级用户ID',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+);
