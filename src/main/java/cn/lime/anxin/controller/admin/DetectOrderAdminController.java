@@ -57,7 +57,8 @@ public class DetectOrderAdminController {
     @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> uploadReport(@RequestBody @Valid UploadReportDto dto, BindingResult result) {
-        service.uploadReport(dto.getCode(),dto.getTitle(),dto.getName(),dto.getIsNormal(),dto.getReportUrls(),dto.getContactorUrls());
+        service.uploadReport(dto.getCode(),dto.getTitle(),dto.getName(),dto.getIsNormal(),dto.getCanUpdate(),
+                dto.getUpdateProductId(),dto.getUpdateSkuId(),dto.getReportUrls(),dto.getContactorUrls());
         return ResultUtils.success(null);
     }
 
@@ -66,7 +67,7 @@ public class DetectOrderAdminController {
     @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<DetectOrderPageVo>> page(@RequestBody @Valid DetectOrderPageAdminDto dto, BindingResult result) {
-        return ResultUtils.success(service.pageDetectOrders(dto.getUserId(), dto.getUserName(),
-                dto.getProductName(), dto.getCode(),dto.getState(),dto.getCurrent(),dto.getPageSize()));
+        return ResultUtils.success(service.pageDetectOrders(dto.getUserId(), dto.getUserName(), dto.getProductName(),
+                dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),dto.getCurrent(),dto.getPageSize()));
     }
 }

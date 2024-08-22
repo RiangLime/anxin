@@ -23,7 +23,7 @@ spring:
     redis:
       host: ${FUNCTION_ED_TECH_REDIS_DOMAIN:10.1.1.113}
       port: 6379
-      dbs: 0,1,2,3,4,5,6,7,8,9
+      dbs: 0,1,2,3,4,5,6,7,8,9,10
       password: 123456
 
 # springdoc-openapi项目配置

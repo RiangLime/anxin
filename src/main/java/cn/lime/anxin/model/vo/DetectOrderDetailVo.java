@@ -27,11 +27,13 @@ public class DetectOrderDetailVo implements Serializable {
     @Schema(description = "检测订单ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
+    @Schema(description = "是否为升级检测")
+    private Integer isUpdated;
     @Schema(description = "12位码")
     private String code;
     @Schema(description = "二维码")
     private String qrCode;
-    @Schema(description = "状态 0待采样 1回寄中 2检测中 3已出报告")
+    @Schema(description = "检测状态 0待采样 1回寄中 2待检测 3检测中 4已出报告")
     private Integer state;
     @Schema(description = "创建时间 秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -89,6 +91,15 @@ public class DetectOrderDetailVo implements Serializable {
     private Long relateOrderId;
     @Schema(description = "关联商城订单详情信息")
     private OrderDetailVo orderDetailVo;
+
+    @Schema(description = "报告是否能升级")
+    private Integer canReportUpdate;
+    @Schema(description = "升级报告对应的产品ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long updateProductId;
+    @Schema(description = "升级报告对应的SKU ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long updateSkuId;
 
     public void form(){
         reportUrls = JSONArray.parseArray(dbReportUrlStr,String.class);

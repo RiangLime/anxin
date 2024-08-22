@@ -13,7 +13,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 * @Entity cn.lime.anxin.model.entity.Detectorder
 */
 public interface DetectorderMapper extends BaseMapper<Detectorder> {
-    Page<DetectOrderPageVo> page(Long bindUserId, String bindUserName, String productName, String code, Integer state,Page<?> page);
+    Page<DetectOrderPageVo> page(Long bindUserId, String bindUserName, String productName, String code, Integer state,
+                                 Integer canUpdate,Integer isUpdated, Page<?> page);
     DetectOrderDetailVo detail(Long id);
 }
 

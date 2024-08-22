@@ -10,9 +10,10 @@ public enum DetectOrderState {
     TO_BE_SAMPLING(0),
     READY_TO_RETURN(1),
     RETURNING(2),
-    DETECTING(3),
-    FINISH(4)
-
+    UPDATE_WAIT_PAID(3),
+    TO_BE_DETECT(4),
+    DETECTING(5),
+    FINISH(6)
     ;
     private final int val;
 

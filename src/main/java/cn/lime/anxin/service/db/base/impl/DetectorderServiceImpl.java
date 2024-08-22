@@ -11,6 +11,7 @@ import cn.lime.core.common.PageResult;
 import cn.lime.core.common.PageUtils;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.AuthLevel;
+import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.threadlocal.ReqThreadLocal;
 import cn.lime.mall.model.vo.OrderDetailVo;
@@ -67,6 +68,26 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     }
 
     @Override
+    public QrCodeVo copyFromDetectOrder(String oldCode, Long productId, Long skuId, Long orderId) {
+        Detectorder old = getByCode(oldCode);
+        Detectorder detectorder = new Detectorder();
+        detectorder.setId(ids.nextId());
+        detectorder.setCode(DetectOrderCodeGenerator.generateUniqueCode());
+        detectorder.setProductId(productId);
+        detectorder.setSkuId(skuId);
+        detectorder.setOrderId(orderId);
+        detectorder.setQrcode(anXinParams.getQrCodePrefix() + detectorder.getCode());
+        detectorder.setIsUpdated(YesNoEnum.YES.getVal());
+        detectorder.setBindUserId(old.getBindUserId());
+        detectorder.setBindTime(old.getBindTime());
+        detectorder.setReturnDeliverCompany(old.getReturnDeliverCompany());
+        detectorder.setReturnDeliverId(old.getReturnDeliverId());
+        detectorder.setDetectState(DetectOrderState.UPDATE_WAIT_PAID.getVal());
+        ThrowUtils.throwIf(!save(detectorder), ErrorCode.INSERT_ERROR, "生成二维码失败");
+        return new QrCodeVo(detectorder.getQrcode(), detectorder.getCode());
+    }
+
+    @Override
     @Transactional
     public void bind(String code) {
         Detectorder detectorder = getByCode(code);
@@ -107,7 +128,8 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     }
 
     @Override
-    public void uploadReport(String code, String title, String name, Integer isNormal, List<String> reportUrls, List<String> contactorUrls) {
+    public void uploadReport(String code, String title, String name, Integer isNormal, Integer canUpdate, Long proId,
+                             Long skuId, List<String> reportUrls, List<String> contactorUrls) {
         Detectorder detectorder = getByCode(code);
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getDetectState, DetectOrderState.FINISH.getVal())
@@ -116,14 +138,18 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
                 .set(Detectorder::getReportIsNormal, isNormal)
                 .set(Detectorder::getReportUrl, JSON.toJSONString(reportUrls))
                 .set(Detectorder::getContactorUrl, JSON.toJSONString(contactorUrls))
+                .set(Detectorder::getCanReportUpdate, canUpdate)
+                .set(Detectorder::getUpdateProductId, proId)
+                .set(Detectorder::getUpdateSkuId, skuId)
                 .update(), ErrorCode.UPDATE_ERROR, "用户确认准备寄回商品失败");
     }
 
     @Override
     public PageResult<DetectOrderPageVo> pageDetectOrders(Long bindUserId, String userName, String productName, String code,
-                                                    Integer state, Integer current, Integer pageSize) {
-        Page<?> page = PageUtils.build(current,pageSize,null,null);
-        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId,userName,productName,code,state,page);
+                                                          Integer state, Integer canUpdate,Integer isUpdated ,
+                                                          Integer current, Integer pageSize) {
+        Page<?> page = PageUtils.build(current, pageSize, null, null);
+        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId, userName, productName, code, state, canUpdate,isUpdated, page);
         return new PageResult<>(res);
     }
 

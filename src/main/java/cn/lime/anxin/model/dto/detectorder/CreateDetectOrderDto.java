@@ -22,4 +22,7 @@ public class CreateDetectOrderDto implements Serializable {
     private Long skuId;
     @Schema(description = "关联商城订单ID")
     private Long relateOrderId;
+
+    @Schema(description = "前置检测订单ID 即该订单是由另一订单升级而来")
+    private Long preDetectOrderId;
 }

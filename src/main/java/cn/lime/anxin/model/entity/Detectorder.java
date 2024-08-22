@@ -21,6 +21,9 @@ public class Detectorder implements Serializable {
     @TableId(value = "id")
     private Long id;
 
+    @TableField(value = "is_updated")
+    private Integer isUpdated;
+
     /**
      * 关联的商品 ID
      */
@@ -110,6 +113,16 @@ public class Detectorder implements Serializable {
      */
     @TableField(value = "contactor_url")
     private String contactorUrl;
+
+    @TableField(value = "can_report_update")
+    private Integer canReportUpdate;
+
+    @TableField(value = "update_product_id")
+    private Long updateProductId;
+
+
+    @TableField(value = "update_sku_id")
+    private Long updateSkuId;
 
     /**
      * 创建时间

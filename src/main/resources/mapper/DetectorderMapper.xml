@@ -26,11 +26,11 @@
 
     <resultMap id="pageVo" type="cn.lime.anxin.model.vo.DetectOrderPageVo">
         <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="isUpdated" column="is_updated" jdbcType="INTEGER"/>
         <result property="code" column="code" jdbcType="VARCHAR"/>
         <result property="qrCode" column="qrcode" jdbcType="VARCHAR"/>
         <result property="state" column="detect_state" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="BIGINT"/>
-
         <result property="productId" column="product_id" jdbcType="BIGINT"/>
         <result property="productName" column="product_name" jdbcType="VARCHAR"/>
         <result property="productMainUrl" column="main_url" jdbcType="VARCHAR"/>
@@ -39,6 +39,11 @@
         <result property="bindUserId" column="bing_user_id" jdbcType="BIGINT"/>
         <result property="bindUserName" column="bind_user_name" jdbcType="VARCHAR"/>
         <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
+
+        <result property="canReportUpdate" column="can_report_update" jdbcType="INTEGER"/>
+        <result property="updateProductId" column="update_product_id" jdbcType="BIGINT"/>
+        <result property="updateSkuId" column="update_sku_id" jdbcType="BIGINT"/>
+
         <collection property="skuAttributes" ofType="cn.lime.mall.model.vo.SkuAttributeVo">
             <id property="id" column="att_id" jdbcType="BIGINT"/>
             <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
@@ -48,6 +53,7 @@
     </resultMap>
     <resultMap id="detailVo" type="cn.lime.anxin.model.vo.DetectOrderDetailVo">
         <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="isUpdated" column="is_updated" jdbcType="INTEGER"/>
         <result property="code" column="code" jdbcType="VARCHAR"/>
         <result property="qrCode" column="qrcode" jdbcType="VARCHAR"/>
         <result property="state" column="detect_state" jdbcType="INTEGER"/>
@@ -63,6 +69,9 @@
         <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
         <result property="returnDeliverCompany" column="return_deliver_company" jdbcType="VARCHAR"/>
         <result property="returnDeliverCode" column="return_deliver_id" jdbcType="VARCHAR"/>
+        <result property="canReportUpdate" column="can_report_update" jdbcType="INTEGER"/>
+        <result property="updateProductId" column="update_product_id" jdbcType="BIGINT"/>
+        <result property="updateSkuId" column="update_sku_id" jdbcType="BIGINT"/>
         <collection property="skuAttributes" ofType="cn.lime.mall.model.vo.SkuAttributeVo">
             <id property="id" column="att_id" jdbcType="BIGINT"/>
             <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
@@ -84,9 +93,13 @@
                               FROM Product_Url pu
                               WHERE pu.url_type = 1)
         SELECT do.id,
+               do.is_updated,
                do.code,
                do.qrcode,
                do.detect_state,
+               do.can_report_update,
+               do.update_product_id,
+               do.update_sku_id,
                UNIX_TIMESTAMP(do.gmt_created) as create_time,
                do.product_id,
                p.product_name,
@@ -123,6 +136,12 @@
         <if test="state != null">
             and do.detect_state = #{state}
         </if>
+        <if test="canUpdate != null">
+            and do.can_report_update = #{canUpdate}
+        </if>
+        <if test="isUpdated != null">
+            and do.is_updated = #{isUpdated}
+        </if>
         ORDER BY do.gmt_created DESC
     </select>
     <select id="detail" resultMap="detailVo">
@@ -131,10 +150,14 @@
                               FROM Product_Url pu
                               WHERE pu.url_type = 1)
         SELECT do.id,
+               do.is_updated,
                do.code,
                do.qrcode,
                do.order_id,
                do.detect_state,
+               do.can_report_update,
+               do.update_product_id,
+               do.update_sku_id,
                UNIX_TIMESTAMP(do.gmt_created) as create_time,
                do.product_id,
                do.return_deliver_company,
@@ -157,6 +180,6 @@
                  left JOIN Sku s on do.sku_id = s.sku_id
                  LEFT JOIN SkuAttribute sa on s.sku_id = sa.sku_id
                  LEFT JOIN `User` u on u.user_id = do.bind_user_id
-        where do.id=#{id}
+        where do.id = #{id}
     </select>
 </mapper>

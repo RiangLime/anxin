@@ -30,6 +30,10 @@ public class DetectOrderPageAdminDto extends PageRequest implements Serializable
     private String productName;
     @Schema(description = "12位码")
     private String code;
-    @Schema(description = "状态 0待采样 1回寄中 2检测中 3已出报告")
+    @Schema(description = "检测状态 0待采样 1回寄中 2待检测 3检测中 4已出报告")
     private Integer state;
+    @Schema(description = "是报告是否能升级 1可以 0不可以")
+    private Integer canUpdate;
+    @Schema(description = "是否为升级检测")
+    private Integer isUpdated;
 }
