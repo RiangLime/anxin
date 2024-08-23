@@ -10,11 +10,11 @@ import lombok.Data;
 
 /**
  * 
- * @TableName Distribute_Relation
+ * @TableName Distribute_Invite_Relation
  */
-@TableName(value ="Distribute_Relation")
+@TableName(value ="Distribute_Invite_Relation")
 @Data
-public class DistributeRelation implements Serializable {
+public class DistributeInviteRelation implements Serializable {
     /**
      * id
      */
@@ -22,16 +22,16 @@ public class DistributeRelation implements Serializable {
     private Long id;
 
     /**
-     * 上级分销商ID
+     * 用户ID
      */
-    @TableField(value = "upper_user_id")
-    private Long upperUserId;
+    @TableField(value = "user_id")
+    private Long userId;
 
     /**
-     * 下级用户ID
+     * 上级ID
      */
-    @TableField(value = "lower_user_id")
-    private Long lowerUserId;
+    @TableField(value = "inviter_id")
+    private Long inviterId;
 
     /**
      * 创建时间

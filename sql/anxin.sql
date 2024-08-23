@@ -58,9 +58,63 @@ create table AdViewLog
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
 );
 
-create table Distribute_Relation(
-    id bigint not null primary key comment 'id',
-    upper_user_id bigint not null comment '上级分销商ID',
-    lower_user_id bigint not null comment '下级用户ID',
+-- 分销系统
+create table Distribute_Level
+(
+    level_id    int not null primary key comment '等级 1 2 3 ...',
+    level_name  nvarchar(64) default '默认' comment '等级名称',
+    rate1       int          default 0 comment '一级佣金比例 百分比',
+    rate2       int          default 0 comment '二级佣金比例 百分比',
+    rate3       int          default 0 comment '自购佣金比例 百分比',
+    gmt_created timestamp    default CURRENT_TIMESTAMP comment '创建时间'
+);
+
+create table Distribute_Invite_Relation
+(
+    id          bigint primary key comment 'id',
+    user_id     bigint not null comment '用户ID',
+    inviter_id  bigint not null comment '上级ID',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+);
+
+create table Distribute_Application
+(
+    id           bigint primary key comment '申请ID',
+    user_id      bigint         not null comment '用户ID',
+    real_name    nvarchar(64)   not null comment '真实姓名',
+    phone        nvarchar(64)   not null comment '联系电话',
+    region       nvarchar(128)  null comment '所属地区',
+    reason       nvarchar(2048) null comment '申请理由',
+    state        tinyint   default 0 comment '申请状态 0待同意 1已批准',
+    approve_time bigint         null comment '批准时间',
+    remark       nvarchar(256)  null comment '管理员备注',
+    gmt_created  timestamp default CURRENT_TIMESTAMP comment '创建时间'
+);
+
+create table Distribute_User
+(
+    user_id       bigint primary key comment '用户ID',
+    level_id      int not null comment '等级ID',
+    assets_get    int not null default 0 comment '已入账佣金',
+    assets_remain int not null default 0 comment '待入账佣金',
+    gmt_created   timestamp    default CURRENT_TIMESTAMP comment '创建时间',
+    gmt_modified  timestamp    default null on update CURRENT_TIMESTAMP comment '修改时间'
+);
+
+create table Distribute_Product
+(
+    id          bigint primary key comment '分销商品ID',
+    product_id  bigint not null comment '参与分销商品ID',
+    sku_id      bigint not null comment '参与分销商品SkuId',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+);
+
+create table Distribute_Order_Log
+(
+    id          bigint primary key comment 'ID',
+    order_id    bigint              not null comment '订单ID',
+    op_type     tinyint             not null comment '1订单完成 2退款',
+    user_id     bigint              not null comment '相关的分销商用户ID',
+    amount      int       default 0 not null comment '涉及分销金额',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
 );

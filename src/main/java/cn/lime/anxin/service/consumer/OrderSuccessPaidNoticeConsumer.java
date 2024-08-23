@@ -1,4 +1,4 @@
-package cn.lime.anxin.service;
+package cn.lime.anxin.service.consumer;
 
 import cn.lime.anxin.constants.DetectOrderState;
 import cn.lime.anxin.model.entity.Detectorder;
@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-public class OrderSuccessNoticeConsumer {
+public class OrderSuccessPaidNoticeConsumer {
 
     @Resource
     private Map<Integer, StringRedisTemplate> redisTemplateMap;

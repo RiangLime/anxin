@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.anxin.mapper.DistributeLevelMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.DistributeLevel">
+            <id property="levelId" column="level_id" jdbcType="INTEGER"/>
+            <result property="levelName" column="level_name" jdbcType="VARCHAR"/>
+            <result property="rate1" column="rate1" jdbcType="INTEGER"/>
+            <result property="rate2" column="rate2" jdbcType="INTEGER"/>
+            <result property="rate3" column="rate3" jdbcType="INTEGER"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        level_id,level_name,rate1,
+        rate2,rate3,gmt_created
+    </sql>
+</mapper>

@@ -1,7 +1,6 @@
 package cn.lime.anxin.controller;
 
 import cn.lime.anxin.model.dto.user.WxEasyLoginInviteDto;
-import cn.lime.anxin.service.db.base.DistributeRelationService;
 import cn.lime.core.annotation.AuthCheck;
 import cn.lime.core.annotation.DtoCheck;
 import cn.lime.core.annotation.RequestLog;
@@ -31,17 +30,14 @@ public class BizUserController {
 
     @Resource
     private UniLogService uniLogService;
-    @Resource
-    private DistributeRelationService distributeRelationService;
 
     @PostMapping("/easylogin/wx/invite")
-    @Operation(summary = "一键登录 微信")
+    @Operation(summary = "一键登录 微信 使用")
     @DtoCheck(checkBindResult = true)
     @AuthCheck(needPlatform = true)
     public BaseResponse<LoginVo> easyLoginWx(@Valid @RequestBody WxEasyLoginInviteDto request, BindingResult result){
         LoginVo loginVo = uniLogService.easyLogin(request);
         if (loginVo.getIsNew()){
-            distributeRelationService.addRelation(request.getInviteUserCode(),loginVo.getUserId());
         }
         return ResultUtils.success(loginVo);
     }
