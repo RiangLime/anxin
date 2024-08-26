@@ -32,7 +32,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/distribute")
-@Tag(name = "分销系统接口 管理员")
+@Tag(name = "分销系统接口[管理员]")
 @CrossOrigin(origins = "*")
 @RequestLog
 public class DistributeAdminController {
