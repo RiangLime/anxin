@@ -10,11 +10,11 @@ import lombok.Data;
 
 /**
  * 
- * @TableName Distribute_Order
+ * @TableName Distribute_Withdraw
  */
-@TableName(value ="Distribute_Order")
+@TableName(value ="Distribute_Withdraw")
 @Data
-public class DistributeOrder implements Serializable {
+public class DistributeWithdraw implements Serializable {
     /**
      * ID
      */
@@ -22,10 +22,28 @@ public class DistributeOrder implements Serializable {
     private Long id;
 
     /**
-     * 订单ID
+     * 用户ID
      */
-    @TableField(value = "order_id")
-    private Long orderId;
+    @TableField(value = "user_id")
+    private Long userId;
+
+    /**
+     * 申请提现数量
+     */
+    @TableField(value = "number")
+    private Integer number;
+
+    /**
+     * 0已提交申请 1已通过 2已拒绝
+     */
+    @TableField(value = "state")
+    private Integer state;
+
+    /**
+     * 审批时间
+     */
+    @TableField(value = "review_time")
+    private Long reviewTime;
 
     /**
      * 创建时间

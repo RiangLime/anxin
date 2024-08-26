@@ -26,6 +26,10 @@ public class DistributeUser implements Serializable {
      */
     @TableField(value = "level_id")
     private Integer levelId;
+    @TableField(value = "assets_get")
+    private Integer assetsGet;
+    @TableField(value = "assets_remain")
+    private Integer assetsRemain;
 
     /**
      * 创建时间

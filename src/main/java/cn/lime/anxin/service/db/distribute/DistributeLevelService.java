@@ -42,4 +42,5 @@ public interface DistributeLevelService extends IService<DistributeLevel> {
      * @return 分销登记信息
      */
     List<DistributeLevelVo> listLevels();
+
 }

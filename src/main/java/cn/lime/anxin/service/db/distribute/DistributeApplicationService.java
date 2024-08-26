@@ -39,6 +39,6 @@ public interface DistributeApplicationService extends IService<DistributeApplica
      * @param queryField  用户昵称/用户账号/用户真实姓名
      * @return
      */
-    PageResult<ApplicationPageVo> pageApplications(String region, Long applyTimeStart, Long applyTimeEnd,
+    PageResult<ApplicationPageVo> pageApplications(Long userId, String region, Long applyTimeStart, Long applyTimeEnd,
                                                    Integer state, String queryField,Integer current,Integer pageSize);
 }

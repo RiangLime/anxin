@@ -44,4 +44,7 @@ public interface DistributeProductService extends IService<DistributeProduct> {
                                                                       Integer distributeType,
                                                                       Integer current, Integer pageSize,
                                                                       String sortField, String sortOrder);
+
+
+    boolean isDistributeProduct(Long productId,Long skuId);
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lime.anxin.mapper.DistributeWithdrawMapper">
+
+    <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.DistributeWithdraw">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="number" column="number" jdbcType="INTEGER"/>
+            <result property="state" column="state" jdbcType="TINYINT"/>
+            <result property="reviewTime" column="review_time" jdbcType="BIGINT"/>
+            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="vo" type="cn.lime.anxin.model.vo.distribute.DistributeWithdrawVo">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="price" column="number" jdbcType="INTEGER"/>
+        <result property="state" column="state" jdbcType="INTEGER"/>
+        <result property="reviewTime" column="review_time" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="BIGINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,user_id,number,
+        state,review_time,gmt_created
+    </sql>
+    <select id="pageWithdraws" resultMap="vo">
+        SELECT
+        dw.id ,
+        dw.user_id ,
+        dw.`number` ,
+        dw.state,
+        dw.review_time ,
+        UNIX_TIMESTAMP(dw.gmt_created) as create_time
+        FROM
+        Distribute_Withdraw dw
+        where 1=1
+        <if test="userId != null">
+            and dw.user_id= #{userId}
+        </if>
+        <if test="state != null">
+            and dw.state = #{state}
+        </if>
+        <if test="priceStart != null">
+            and dw.number >= #{priceStart}
+        </if>
+        <if test="priceEnd != null">
+            and dw.number &lt;= #{priceEnd}
+        </if>
+        <if test="applyTimeStart != null">
+            and UNIX_TIMESTAMP(dw.gmt_created) &gt;= #{applyTimeStart}
+        </if>
+        <if test="applyTimeEnd != null">
+            and UNIX_TIMESTAMP(dw.gmt_created) &lt;= #{applyTimeEnd}
+        </if>
+        order by dw.gmt_created desc
+    </select>
+</mapper>

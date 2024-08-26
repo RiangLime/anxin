@@ -1,7 +1,12 @@
 package cn.lime.anxin.mapper;
 
 import cn.lime.anxin.model.entity.DistributeProduct;
+import cn.lime.anxin.model.vo.distribute.ProductWithDistributeTagPageVo;
+import cn.lime.mall.model.vo.ProductPageVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import java.util.List;
 
 /**
 * @author riang
@@ -10,7 +15,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity cn.lime.anxin.model.entity.DistributeProduct
 */
 public interface DistributeProductMapper extends BaseMapper<DistributeProduct> {
-
+    Page<ProductWithDistributeTagPageVo> pageProduct(String productName, List<Long> tagIds, String productType, Integer state,
+                                                     Integer distributeState, Page<?> page);
 }
 
 

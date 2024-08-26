@@ -12,7 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 * @Entity cn.lime.anxin.model.entity.DistributeApplication
 */
 public interface DistributeApplicationMapper extends BaseMapper<DistributeApplication> {
-    Page<ApplicationPageVo> pageApplys(String region, Long applyTimeStart, Long applyTimeEnd,
+    Page<ApplicationPageVo> pageApplys(Long userId, String region, Long applyTimeStart, Long applyTimeEnd,
                                        Integer state, String queryField,Page<?> page);
 }
 

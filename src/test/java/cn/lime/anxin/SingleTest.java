@@ -14,9 +14,10 @@ public class SingleTest {
 
     @Test
     public void test(){
-        Long a = 1023242928052637696L;
-        String base64 = Base64.getEncoder().encodeToString(String.valueOf(a).getBytes());
-        System.out.println(base64);
+        Integer price = 18000;
+        Integer percent  = 23;
+        Integer res = price * percent / 100;
+        System.out.println(res);
     }
 
 }

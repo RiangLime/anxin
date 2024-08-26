@@ -112,9 +112,26 @@ create table Distribute_Product
 create table Distribute_Order_Log
 (
     id          bigint primary key comment 'ID',
-    order_id    bigint              not null comment '订单ID',
+    order_id    bigint              null comment '订单ID',
     op_type     tinyint             not null comment '1订单完成 2退款',
     user_id     bigint              not null comment '相关的分销商用户ID',
     amount      int       default 0 not null comment '涉及分销金额',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+);
+
+create table Distribute_Order
+(
+    id          bigint primary key comment 'ID',
+    order_id    bigint not null comment '订单ID',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+);
+
+create table Distribute_Withdraw
+(
+    id bigint primary key comment 'ID',
+    user_id bigint not null comment '用户ID',
+    number int not null comment '申请提现数量',
+    state tinyint not null default 0 comment '0已提交申请 1已通过 2已拒绝',
+    review_time bigint null comment '审批时间',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
 );

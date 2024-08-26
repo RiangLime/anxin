@@ -39,7 +39,7 @@ public class DistributeApplicationServiceImpl extends ServiceImpl<DistributeAppl
     @Override
     public DistributeApplication getById(Serializable id) {
         DistributeApplication bean = super.getById(id);
-        ThrowUtils.throwIf(ObjectUtils.isEmpty(bean),ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(bean), ErrorCode.NOT_FOUND_ERROR);
         return bean;
     }
 
@@ -64,16 +64,16 @@ public class DistributeApplicationServiceImpl extends ServiceImpl<DistributeAppl
                 .set(DistributeApplication::getRemark, remark)
                 .update(), ErrorCode.UPDATE_ERROR, "审批失败");
         // 审批通过 添加分销商信息
-        if (isApprove.equals(YesNoEnum.YES.getVal())){
+        if (isApprove.equals(YesNoEnum.YES.getVal())) {
             distributeUserService.addDistributor(bean.getUserId());
         }
     }
 
     @Override
-    public PageResult<ApplicationPageVo> pageApplications(String region, Long applyTimeStart, Long applyTimeEnd,
+    public PageResult<ApplicationPageVo> pageApplications(Long userId, String region, Long applyTimeStart, Long applyTimeEnd,
                                                           Integer state, String queryField, Integer current, Integer pageSize) {
-        Page<?> page = PageUtils.build(current,pageSize,null,null);
-        Page<ApplicationPageVo> vo = baseMapper.pageApplys(region,applyTimeStart,applyTimeEnd,state,queryField,page);
+        Page<?> page = PageUtils.build(current, pageSize, null, null);
+        Page<ApplicationPageVo> vo = baseMapper.pageApplys(userId, region, applyTimeStart, applyTimeEnd, state, queryField, page);
         return new PageResult<>(vo);
     }
 }

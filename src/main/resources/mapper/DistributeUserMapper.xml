@@ -7,10 +7,12 @@
     <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.DistributeUser">
             <id property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="levelId" column="level_id" jdbcType="INTEGER"/>
+            <result property="assetsGet" column="assets_get" jdbcType="INTEGER"/>
+            <result property="assetsRemain" column="assets_remain" jdbcType="INTEGER"/>
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        user_id,level_id,gmt_created
+        user_id,level_id,assets_get,assets_remain,gmt_created
     </sql>
 </mapper>

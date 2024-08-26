@@ -15,4 +15,73 @@
         id,product_id,sku_id,
         gmt_created
     </sql>
+    <select id="pageProduct" resultType="cn.lime.anxin.model.vo.distribute.ProductWithDistributeTagPageVo">
+        with sales as (SELECT p.product_id,
+                              sum(oi.number) as sales
+                       FROM Product p
+                                left join Order_Item oi on
+                           p.product_id = oi.product_id
+                       GROUP by p.product_id)
+
+
+        SELECT tmp.*, IF(dp.id is null, 0, 1) as is_distribute
+        FROM (SELECT t.*,
+                     COALESCE(sales.sales,
+                              0)
+              FROM (SELECT p.product_id                  AS productId,
+                           p.product_code                AS productCode,
+                           p.product_name                AS productName,
+                           p.product_state               AS productState,
+                           p.product_type_1              AS productType,
+                           p.reserve_str_a               AS productBrand,
+                           UNIX_TIMESTAMP(p.gmt_created) AS createTime,
+                           p.product_sort                AS productSort,
+                           MAX(s.price)                  AS priceRangeStart,
+                           MIN(s.price)                  AS priceRangeEnd,
+                           SUM(s.stock)                  AS productTotalStock,
+                           CASE
+                               WHEN COUNT(s.sku_id) > 1 THEN TRUE
+                               ELSE FALSE
+                               END                       AS multiSku,
+                           COALESCE(v.view_number,
+                                    0)                   AS productViews
+                    FROM Product p
+                             LEFT JOIN Sku s ON
+                        p.product_id = s.product_id
+                             LEFT JOIN (SELECT product_id,
+                                               COUNT(*) AS view_number
+                                        FROM Product_View_Log pvl
+                                        GROUP BY pvl.product_id) v ON
+                        v.product_id = p.product_id
+                    GROUP BY p.product_id) t
+                       LEFT JOIN Product_Have_Tag pht ON
+                  t.productId = pht.product_id
+                       LEFT JOIN sales ON
+                  sales.product_id = t.productId
+              WHERE 1 = 1
+            <if test="productName != null">
+                and t.productName like CONCAT('%', #{productName}, '%')
+            </if>
+            <if test="productType != null">
+                and t.productType = #{productType}
+            </if>
+            <if test="state != null">
+                and t.productState = #{state}
+            </if>
+            <if test="tagIds != null and tagIds.size() > 0">
+                and tag_id IN
+                <foreach item="tagId" index="index" collection="tagIds" open="(" separator="," close=")">
+                    #{tagId}
+                </foreach>
+            </if>
+              ) tmp
+                 LEFT join Distribute_Product dp on dp.product_id = tmp.productId
+            <if test="distributeState != null and distributeState == 1">
+                where dp.id is not null
+            </if>
+            <if test="distributeState != null and distributeState == 0">
+                where dp.id is null
+            </if>
+    </select>
+
 </mapper>
