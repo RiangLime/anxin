@@ -25,7 +25,6 @@ spring:
       port: 6379
       dbs: 0,1,2,3,4,5,6,7,8,9,10
       password: 123456
-
 # springdoc-openapi项目配置
 springdoc:
   swagger-ui:
@@ -47,3 +46,6 @@ knife4j:
     language: zh_cn
     swagger-model-name: 实体类列表
   production: ${PRODUCTION:false}
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

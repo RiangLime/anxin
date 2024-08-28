@@ -47,6 +47,7 @@ public class DistributeApplicationServiceImpl extends ServiceImpl<DistributeAppl
     public void apply(Long userId, String realName, String phone, String region, String reason) {
         DistributeApplication apply = new DistributeApplication();
         apply.setId(ids.nextId());
+        apply.setUserId(userId);
         apply.setRealName(realName);
         apply.setPhone(phone);
         apply.setReason(reason);

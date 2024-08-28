@@ -17,14 +17,15 @@
     </resultMap>
     <resultMap id="pageVo" type="cn.lime.anxin.model.vo.distribute.ApplicationPageVo">
         <id property="id" column="apply_id" jdbcType="BIGINT"/>
-        <result property="realName" column="real_name" jdbcType="VARCHAR"/>
-        <result property="phone" column="phone" jdbcType="VARCHAR"/>
-        <result property="region" column="region" jdbcType="VARCHAR"/>
-        <result property="reason" column="reason" jdbcType="VARCHAR"/>
-        <result property="state" column="state" jdbcType="INTEGER"/>
-        <result property="approveTime" column="approve_time" jdbcType="BIGINT"/>
-        <result property="remark" column="remark" jdbcType="VARCHAR"/>
-        <result property="applyTime" column="apply_time" jdbcType="BIGINT"/>
+        <result property="userId" column="da_user_id" jdbcType="BIGINT"/>
+        <result property="realName" column="da_real_name" jdbcType="VARCHAR"/>
+        <result property="phone" column="da_phone" jdbcType="VARCHAR"/>
+        <result property="region" column="da_region" jdbcType="VARCHAR"/>
+        <result property="reason" column="da_reason" jdbcType="VARCHAR"/>
+        <result property="state" column="da_state" jdbcType="INTEGER"/>
+        <result property="approveTime" column="da_approve_time" jdbcType="BIGINT"/>
+        <result property="remark" column="da_remark" jdbcType="VARCHAR"/>
+        <result property="applyTime" column="da_apply_time" jdbcType="BIGINT"/>
         <association property="userVo" resultMap="cn.lime.core.mapper.UserMapper.userVo"/>
     </resultMap>
 
@@ -63,14 +64,16 @@
                 u.status)
         SELECT
             users.*,
-            da.real_name ,
-            da.phone ,
-            da.region ,
-            da.reason ,
-            da.state ,
-            da.approve_time ,
-            da.remark ,
-            UNIX_TIMESTAMP(da.gmt_created) as apply_time
+            da.user_id as da_user_id,
+            da.id as apply_id,
+            da.real_name as da_real_name,
+            da.phone as da_phone,
+            da.region as da_region,
+            da.reason as da_reason,
+            da.state as da_state,
+            da.approve_time as da_approve_time,
+            da.remark as da_remark,
+            UNIX_TIMESTAMP(da.gmt_created) as da_apply_time
         FROM
             Distribute_Application da
                 left join users on

@@ -48,7 +48,7 @@
             <id property="id" column="att_id" jdbcType="BIGINT"/>
             <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
             <result property="attributeName" column="att_name" jdbcType="VARCHAR"/>
-            <result property="attributeValue" column="stt_value" jdbcType="VARCHAR"/>
+            <result property="attributeValue" column="att_val" jdbcType="VARCHAR"/>
         </collection>
     </resultMap>
     <resultMap id="detailVo" type="cn.lime.anxin.model.vo.DetectOrderDetailVo">
@@ -76,7 +76,7 @@
             <id property="id" column="att_id" jdbcType="BIGINT"/>
             <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
             <result property="attributeName" column="att_name" jdbcType="VARCHAR"/>
-            <result property="attributeValue" column="stt_value" jdbcType="VARCHAR"/>
+            <result property="attributeValue" column="att_val" jdbcType="VARCHAR"/>
         </collection>
     </resultMap>
     <sql id="Base_Column_List">
@@ -122,7 +122,7 @@
                  LEFT JOIN `User` u on u.user_id = do.bind_user_id
         where 1=1
         <if test="bindUserId != null">
-            and do.bind_user_id = #{userId}
+            and do.bind_user_id = #{bindUserId}
         </if>
         <if test="bindUserName != null">
             and u.name like CONCAT('%', #{bindUserName}, '%')

@@ -1,5 +1,7 @@
 package cn.lime.anxin;
 
+import cn.lime.core.aes.AesUtils;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
@@ -13,11 +15,10 @@ import java.util.Base64;
 public class SingleTest {
 
     @Test
+    @SneakyThrows
     public void test(){
-        Integer price = 18000;
-        Integer percent  = 23;
-        Integer res = price * percent / 100;
-        System.out.println(res);
+        AesUtils aesUtils = new AesUtils("1234123412341234","1234123412341234");
+        System.out.println(aesUtils.encrypt("admin888"));
     }
 
 }

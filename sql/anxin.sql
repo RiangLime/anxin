@@ -23,7 +23,7 @@ create table DetectOrder
     update_sku_id          bigint        null comment '升级SKU ID',
     gmt_created            timestamp              default CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified           timestamp              default null on update CURRENT_TIMESTAMP comment '修改时间'
-);
+)comment '样品检测表 二维码->回寄->报告' collate = utf8mb4_unicode_ci;;
 
 create table HomePageStructure
 (
@@ -31,7 +31,7 @@ create table HomePageStructure
     structure   text         null comment '首页结构',
     version     nvarchar(64) null comment '首页结构版本号',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '主页结构表' collate = utf8mb4_unicode_ci;;
 
 create table Advertisement
 (
@@ -40,7 +40,7 @@ create table Advertisement
     type        int       default 1 comment '1广告',
     picture     nvarchar(255) null comment '广告图片',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '广告表 扩展为所有单页推广' collate = utf8mb4_unicode_ci;;
 create table AdStructure
 (
     id             int            not null primary key auto_increment comment 'id',
@@ -49,14 +49,19 @@ create table AdStructure
     struct_type    int            not null comment '内容单元类型 1文字 2图片 3视频 4音频 5推广链接',
     struct_content nvarchar(2048) null comment '广告标题',
     gmt_created    timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '广告内容结构表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE AdStructure ADD CONSTRAINT fk_ad_structure_ad_id
+    FOREIGN KEY (ad_id) REFERENCES Advertisement (id) on delete cascade;
+
 create table AdViewLog
 (
     id          bigint primary key comment 'id',
     ad_id       int    not null comment '广告ID',
     user_id     bigint null comment '用户ID',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '广告浏览日志表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE AdStructure ADD CONSTRAINT fk_ad_view_log_ad_id
+    FOREIGN KEY (ad_id) REFERENCES Advertisement (id) on delete cascade;
 
 -- 分销系统
 create table Distribute_Level
@@ -67,7 +72,7 @@ create table Distribute_Level
     rate2       int          default 0 comment '二级佣金比例 百分比',
     rate3       int          default 0 comment '自购佣金比例 百分比',
     gmt_created timestamp    default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销等级表' collate = utf8mb4_unicode_ci;;
 
 create table Distribute_Invite_Relation
 (
@@ -75,7 +80,11 @@ create table Distribute_Invite_Relation
     user_id     bigint not null comment '用户ID',
     inviter_id  bigint not null comment '上级ID',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销邀请新用户信息表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Distribute_Invite_Relation ADD CONSTRAINT fk_relation_user_id
+    FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
+ALTER TABLE Distribute_Invite_Relation ADD CONSTRAINT fk_relation_inviter_id
+    FOREIGN KEY (inviter_id) REFERENCES User (user_id) on delete cascade;
 
 create table Distribute_Application
 (
@@ -89,7 +98,9 @@ create table Distribute_Application
     approve_time bigint         null comment '批准时间',
     remark       nvarchar(256)  null comment '管理员备注',
     gmt_created  timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销商申请信息表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Distribute_Application ADD CONSTRAINT fk_dis_application_user_id
+    FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
 
 create table Distribute_User
 (
@@ -99,15 +110,19 @@ create table Distribute_User
     assets_remain int not null default 0 comment '待入账佣金',
     gmt_created   timestamp    default CURRENT_TIMESTAMP comment '创建时间',
     gmt_modified  timestamp    default null on update CURRENT_TIMESTAMP comment '修改时间'
-);
+)comment '分销商表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Distribute_User ADD CONSTRAINT fk_dis_user_user_id
+    FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
 
 create table Distribute_Product
 (
     id          bigint primary key comment '分销商品ID',
     product_id  bigint not null comment '参与分销商品ID',
-    sku_id      bigint not null comment '参与分销商品SkuId',
+    sku_id      bigint null comment '参与分销商品SkuId',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销商品表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Distribute_Product ADD CONSTRAINT fk_dis_product_product_id
+    FOREIGN KEY (product_id) REFERENCES Product (product_id) on delete cascade;
 
 create table Distribute_Order_Log
 (
@@ -117,14 +132,16 @@ create table Distribute_Order_Log
     user_id     bigint              not null comment '相关的分销商用户ID',
     amount      int       default 0 not null comment '涉及分销金额',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销订单关联日志表' collate = utf8mb4_unicode_ci;;
 
 create table Distribute_Order
 (
     id          bigint primary key comment 'ID',
     order_id    bigint not null comment '订单ID',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销订单表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Distribute_Order ADD CONSTRAINT fk_dis_order_order_id
+    FOREIGN KEY (order_id) REFERENCES `Order` (order_id) on delete cascade;
 
 create table Distribute_Withdraw
 (
@@ -134,4 +151,17 @@ create table Distribute_Withdraw
     state tinyint not null default 0 comment '0已提交申请 1已通过 2已拒绝',
     review_time bigint null comment '审批时间',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
-);
+)comment '分销提现表' collate = utf8mb4_unicode_ci;;
+ALTER TABLE Distribute_Withdraw ADD CONSTRAINT fk_dis_withdraw_user_id
+    FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
+
+
+
+-- 初始化数据
+-- 1 管理员账号
+INSERT INTO anxin.`User` (user_id, account, password, name, `role`) VALUES(1, 'admin', 'admin888', 'admin', 2);
+-- 2 分销等级
+INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(1, '一级分销等级', 0, 20, 10);
+INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(2, '二级分销等级', 0, 20, 10);
+INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(3, '三级分销等级', 0, 20, 10);
+INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(100, '默认分销等级(如级数太多查不到等级自动使用此等级)', 0, 0, 0);

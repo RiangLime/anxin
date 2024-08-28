@@ -33,7 +33,7 @@ public class DetectOrderDetailVo implements Serializable {
     private String code;
     @Schema(description = "二维码")
     private String qrCode;
-    @Schema(description = "检测状态 0待采样 1回寄中 2待检测 3检测中 4已出报告")
+    @Schema(description = "检测状态 0待采样 1采样完毕 2回寄中 3升级产品未付款待检测 4待检测 5检测中 6已出报告")
     private Integer state;
     @Schema(description = "创建时间 秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)

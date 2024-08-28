@@ -102,10 +102,14 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     @Override
     public void setReturnDeliverInfo(String code, String deliverCompany, String deliverCode) {
         Detectorder detectorder = getByCode(code);
+        ThrowUtils.throwIf(!detectorder.getDetectState().equals(DetectOrderState.READY_TO_RETURN.getVal()),
+                ErrorCode.AUTH_FAIL, "用户还未完成采样");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getReturnDeliverId, deliverCode)
                 .set(Detectorder::getReturnDeliverCompany, deliverCompany)
-                .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
+                .set(Detectorder::getDetectState, DetectOrderState.RETURNING.getVal())
+                .update(), ErrorCode.UPDATE_ERROR, "管理员设置回寄信息失败");
+
     }
 
     @Override
@@ -146,10 +150,10 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
 
     @Override
     public PageResult<DetectOrderPageVo> pageDetectOrders(Long bindUserId, String userName, String productName, String code,
-                                                          Integer state, Integer canUpdate,Integer isUpdated ,
+                                                          Integer state, Integer canUpdate, Integer isUpdated,
                                                           Integer current, Integer pageSize) {
         Page<?> page = PageUtils.build(current, pageSize, null, null);
-        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId, userName, productName, code, state, canUpdate,isUpdated, page);
+        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId, userName, productName, code, state, canUpdate, isUpdated, page);
         return new PageResult<>(res);
     }
 
