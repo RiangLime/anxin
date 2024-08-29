@@ -10,6 +10,7 @@ import cn.lime.anxin.service.db.base.DetectorderService;
 import cn.lime.anxin.service.db.distribute.DistributeApplicationService;
 import cn.lime.anxin.service.db.distribute.DistributeWithdrawService;
 import cn.lime.mall.constant.OrderStatus;
+import cn.lime.mall.constant.RefundStatus;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.service.db.OrderService;
 import jakarta.annotation.Resource;
@@ -72,7 +73,16 @@ public class PollingService {
                 .map(DistributeWithdraw::getId)
                 .map(String::valueOf)
                 .toList();
-        return new PollingInfoVo(orderIdStrings,detectOrderIdStrings,distributorApplyIdStrings,distributorWithdrawApplyIdStrings);
+        // 待退款提示
+        List<String> refundIdStrings = orderService.lambdaQuery()
+                .eq(Order::getRefundStatus, RefundStatus.APPLY.getVal())
+                .list()
+                .stream()
+                .map(Order::getOrderId)
+                .map(String::valueOf)
+                .toList();
+        return new PollingInfoVo(orderIdStrings,detectOrderIdStrings,distributorApplyIdStrings,
+                distributorWithdrawApplyIdStrings,refundIdStrings);
     }
 
 }

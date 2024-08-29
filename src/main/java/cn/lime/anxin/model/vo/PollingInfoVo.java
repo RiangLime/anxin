@@ -37,4 +37,6 @@ public class PollingInfoVo implements Serializable {
     // 申请提现提示
     @Schema(description = "申请提现提示")
     private List<String> distributorWithdrawApplyIdStrings;
+    @Schema(description = "退款申请提示")
+    private List<String> refundOrderIdStrings;
 }
