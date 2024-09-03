@@ -1,5 +1,6 @@
 package cn.lime.anxin.utils;
 
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -13,22 +14,22 @@ import java.util.Random;
 public class DetectOrderCodeGenerator {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Random RANDOM = new Random();
+    private static final String CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final int UUID_LENGTH = 14;
+    private static final SecureRandom random = new SecureRandom();
 
     public static String generateUniqueCode() {
-        // 获取当前时间戳，精确到毫秒
-        long timestamp = System.currentTimeMillis();
+        StringBuilder uuidBuilder = new StringBuilder(UUID_LENGTH);
 
-        // 获取时间戳的后8位
-        String timestampStr = String.valueOf(timestamp).substring(5);
+        for (int i = 1; i <= UUID_LENGTH; i++) {
+            if (i%5==0){
+                uuidBuilder.append("-");
+            }else {
+                int index = random.nextInt(CHAR_POOL.length());
+                uuidBuilder.append(CHAR_POOL.charAt(index));
+            }
+        }
 
-        // 生成一个4位随机数
-        Random random = new Random();
-        int randomNum = random.nextInt(9000) + 1000; // 保证是4位数
-
-        // 组合时间戳和随机数
-        String code = timestampStr + randomNum;
-
-        // 格式化成每4位用-隔开的形式
-        return code.substring(0, 4) + "-" + code.substring(4, 8) + "-" + code.substring(8, 12);
+        return uuidBuilder.toString();
     }
 }

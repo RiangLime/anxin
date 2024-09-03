@@ -165,3 +165,5 @@ INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) V
 INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(2, '二级分销等级', 0, 20, 10);
 INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(3, '三级分销等级', 0, 20, 10);
 INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(100, '默认分销等级(如级数太多查不到等级自动使用此等级)', 0, 0, 0);
+-- 3 本地多媒体
+INSERT INTO anxin.Local_Media_Tag (id, tag_name) VALUES(1, '未分组');

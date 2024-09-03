@@ -46,6 +46,10 @@ knife4j:
     language: zh_cn
     swagger-model-name: 实体类列表
   production: ${PRODUCTION:false}
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+core:
+  file-storage:
+    path: /Users/riang/tmp
+    prefix: http://multi/
