@@ -51,5 +51,5 @@ knife4j:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 core:
   file-storage:
-    path: /www/wwwroot/java.shop.ceagull.top/public/upload
-    prefix: https://java.shop.ceagull.top/upload
+    path: ${upload_path:/www/wwwroot/java.shop.ceagull.top/public/upload}
+    prefix: ${upload_url_prefix:https://java.shop.ceagull.top/upload}
