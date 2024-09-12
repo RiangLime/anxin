@@ -18,8 +18,8 @@ public class SingleTest {
     @Test
     @SneakyThrows
     public void test(){
-//        AesUtils aesUtils = new AesUtils("1234123412341234","1234123412341234");
-//        System.out.println(aesUtils.encrypt("admin888"));
+        AesUtils aesUtils = new AesUtils("1234123412341234","1234123412341234");
+        System.out.println(aesUtils.encrypt("admin888"));
         String a = DetectOrderCodeGenerator.generateUniqueCode();
         System.out.println(a);
     }
