@@ -19,7 +19,7 @@
     </resultMap>
     <resultMap id="detailVo" type="cn.lime.anxin.model.vo.AdDetailVo">
         <id property="adId" column="id" jdbcType="INTEGER"/>
-        <result property="adTitle" column="title" jdbcType="NVARCHAR"/>
+        <result property="adTitle" column="title" jdbcType="VARCHAR"/>
         <result property="adPicture" column="picture" jdbcType="VARCHAR"/>
         <result property="adCreateTime" column="create_time" jdbcType="BIGINT"/>
         <result property="adViewCount" column="view_count" jdbcType="INTEGER"/>
@@ -40,7 +40,7 @@
             a.title ,
             a.picture ,
             UNIX_TIMESTAMP(a.gmt_created) as create_time ,
-            SUM(avl.id) as view_count
+            count(avl.id) as view_count
         FROM
             Advertisement a
                 left join AdViewLog avl on
@@ -48,7 +48,7 @@
         GROUP by
             a.id
     </select>
-    <select id="getAdDetail" resultType="cn.lime.anxin.model.vo.AdDetailVo">
+    <select id="getAdDetail" resultMap="detailVo">
         SELECT
             page.*,
             ads.serial_id ,
@@ -61,7 +61,7 @@
                     a.title ,
                     a.picture ,
                     UNIX_TIMESTAMP(a.gmt_created) as create_time ,
-                    SUM(avl.id) as view_count
+                    count(avl.id) as view_count
                 FROM
                     Advertisement a
                         left join AdViewLog avl on

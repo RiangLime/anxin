@@ -53,3 +53,7 @@ core:
   file-storage:
     path: ${upload_path:/www/wwwroot/java.shop.ceagull.top/public/upload}
     prefix: ${upload_url_prefix:https://java.shop.ceagull.top/upload}
+  wx:
+    mp:
+      app-id: ${mp_app_id:wxc449a89ac5cc9210}
+      secret-id: ${mp_secret_id:}
