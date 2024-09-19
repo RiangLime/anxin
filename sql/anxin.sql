@@ -167,3 +167,6 @@ INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) V
 INSERT INTO anxin.Distribute_Level (level_id, level_name, rate1, rate2, rate3) VALUES(100, '默认分销等级(如级数太多查不到等级自动使用此等级)', 0, 0, 0);
 -- 3 本地多媒体
 INSERT INTO anxin.Local_Media_Tag (id, tag_name) VALUES(1, '未分组');
+-- 4
+INSERT INTO anxin.NickNameRepo(id, `type`, content)VALUES(1, 1, '用户');
+INSERT INTO anxin.NickNameRepo(id, `type`, content)VALUES(2, 2, '默认');
