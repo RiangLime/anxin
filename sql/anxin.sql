@@ -170,3 +170,8 @@ INSERT INTO anxin.Local_Media_Tag (id, tag_name) VALUES(1, '未分组');
 -- 4
 INSERT INTO anxin.NickNameRepo(id, `type`, content)VALUES(1, 1, '用户');
 INSERT INTO anxin.NickNameRepo(id, `type`, content)VALUES(2, 2, '默认');
+
+INSERT INTO anxin.Product
+(product_id, product_code, product_name, product_description, product_state, visible, product_sort)
+VALUES(1, 'DO NOT EDIT', '自选定制 - 请勿修改', '[{"content":"http://47.116.166.113/uploads/WechatIMG864.jpg","order":0,"link":"","linkName":""}]', 1, 1, 1);
+
