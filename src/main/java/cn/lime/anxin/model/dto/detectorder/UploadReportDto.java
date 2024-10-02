@@ -22,8 +22,8 @@ public class UploadReportDto {
     private String title;
     @Schema(description = "报告名称")
     private String name;
-    @Schema(description = "是否正常 1正常 0异常")
-    private Integer isNormal = 1;
+    @Schema(description = "是否正常 1正常 0异常 2存疑")
+    private Integer detectResult = 1;
 
     @Schema(description = "报告是否能升级 默认0不可 ")
     private Integer canUpdate = 0;

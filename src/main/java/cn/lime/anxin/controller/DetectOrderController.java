@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +79,19 @@ public class DetectOrderController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<DetectOrderDetailVo> detail(@RequestBody @Valid CodeIdDto dto, BindingResult result) {
         return ResultUtils.success(service.getDetectOrderDetail(dto.getId()));
+    }
+
+    @PostMapping("/setreturninfo")
+    @Operation(summary = "用户一键回寄")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    @Transactional
+    public BaseResponse<Void> userEasyReturn(@RequestBody @Valid UserSetReturnDeliverInfoDto dto, BindingResult result) {
+        service.userSetReturnDeliverInfo(dto.getCode(),dto.getReturnDeliverUserName(),dto.getReturnDeliverUserPosition(),
+                dto.getReturnDeliverUserAddress(),dto.getReturnDeliverUserPhone(),dto.getReturnDeliverUserAge(),
+                dto.getReturnDeliverVisitTime());
+        service.confirmReadyToReturn(dto.getCode());
+        return ResultUtils.success(null);
     }
 
 }

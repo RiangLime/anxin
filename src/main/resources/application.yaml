@@ -53,6 +53,10 @@ core:
   file-storage:
     path: ${upload_path:/www/wwwroot/java.shop.ceagull.top/public/upload}
     prefix: ${upload_url_prefix:https://java.shop.ceagull.top/upload}
+  avatar-storage:
+    path: ${avatar_upload_path:/www/wwwroot/java.shop.ceagull.top/public/upload}
+    prefix: ${avatar_upload_url_prefix:https://java.shop.ceagull.top/upload}
+    max-size-KB: ${avatar_upload_max_size_kb:500}
   wx:
     mp:
       app-id: ${mp_app_id:wxc449a89ac5cc9210}

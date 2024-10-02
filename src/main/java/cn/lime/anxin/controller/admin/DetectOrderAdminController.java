@@ -1,6 +1,7 @@
 package cn.lime.anxin.controller.admin;
 
 import cn.lime.anxin.model.dto.detectorder.*;
+import cn.lime.anxin.model.vo.DetectOrderDetailVo;
 import cn.lime.anxin.model.vo.DetectOrderPageVo;
 import cn.lime.anxin.service.db.base.DetectorderService;
 import cn.lime.core.annotation.AuthCheck;
@@ -10,7 +11,6 @@ import cn.lime.core.common.BaseResponse;
 import cn.lime.core.common.PageResult;
 import cn.lime.core.common.ResultUtils;
 import cn.lime.core.constant.AuthLevel;
-import cn.lime.core.threadlocal.ReqThreadLocal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -57,7 +57,7 @@ public class DetectOrderAdminController {
     @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> uploadReport(@RequestBody @Valid UploadReportDto dto, BindingResult result) {
-        service.uploadReport(dto.getCode(),dto.getTitle(),dto.getName(),dto.getIsNormal(),dto.getCanUpdate(),
+        service.uploadReport(dto.getCode(),dto.getTitle(),dto.getName(),dto.getDetectResult(),dto.getCanUpdate(),
                 dto.getUpdateProductId(),dto.getUpdateSkuId(),dto.getReportUrls(),dto.getContactorUrls());
         return ResultUtils.success(null);
     }
@@ -69,5 +69,13 @@ public class DetectOrderAdminController {
     public BaseResponse<PageResult<DetectOrderPageVo>> page(@RequestBody @Valid DetectOrderPageAdminDto dto, BindingResult result) {
         return ResultUtils.success(service.pageDetectOrders(dto.getUserId(), dto.getUserName(), dto.getProductName(),
                 dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),dto.getCurrent(),dto.getPageSize()));
+    }
+
+    @PostMapping("/detail")
+    @Operation(summary = "查询检测数据详情")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<DetectOrderDetailVo> detail(@RequestBody @Valid CodeIdDto dto, BindingResult result) {
+        return ResultUtils.success(service.getDetectOrderDetail(dto.getId()));
     }
 }

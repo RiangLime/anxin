@@ -25,6 +25,10 @@ public interface DetectorderService extends IService<Detectorder> {
 
     void setReturnDeliverInfo(String code, String deliverCompany, String deliverCode);
 
+    void userSetReturnDeliverInfo(String code,String returnDeliverUserName,String returnDeliverUserPosition,
+                                  String returnDeliverUserAddress, String returnDeliverUserPhone,
+                                  Integer returnDeliverUserAge,String returnDeliverVisitTime);
+
     void confirmReceiveReturn(String code);
 
     void uploadReport(String code, String title, String name, Integer isNormal, Integer canUpdate, Long proId, Long skuId, List<String> reportUrls, List<String> contactorUrls);

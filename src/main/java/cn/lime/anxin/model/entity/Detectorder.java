@@ -63,6 +63,19 @@ public class Detectorder implements Serializable {
     @TableField(value = "bind_time")
     private Date bindTime;
 
+    @TableField(value = "return_deliver_user_name")
+    private String returnDeliverUserName;
+    @TableField(value = "return_deliver_user_position")
+    private String returnDeliverUserPosition;
+    @TableField(value = "return_deliver_user_address")
+    private String returnDeliverUserAddress;
+    @TableField(value = "return_deliver_user_phone")
+    private String returnDeliverUserPhone;
+    @TableField(value = "return_deliver_user_age")
+    private Integer returnDeliverUserAge;
+    @TableField(value = "return_deliver_user_time")
+    private String returnDeliverUserTime;
+
     /**
      * 回寄物流公司
      */

@@ -72,4 +72,6 @@ public class DetectOrderPageVo implements Serializable {
     @Schema(description = "升级报告对应的SKU ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long updateSkuId;
+    @Schema(description = "报告结果")
+    private Integer detectResult;
 }

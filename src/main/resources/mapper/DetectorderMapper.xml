@@ -12,6 +12,12 @@
             <result property="qrcode" column="qrcode" jdbcType="VARCHAR"/>
             <result property="bindUserId" column="bind_user_id" jdbcType="BIGINT"/>
             <result property="bindTime" column="bind_time" jdbcType="TIMESTAMP"/>
+            <result property="returnDeliverUserName" column="return_deliver_user_name" jdbcType="VARCHAR"/>
+            <result property="returnDeliverUserPosition" column="return_deliver_user_position" jdbcType="VARCHAR"/>
+            <result property="returnDeliverUserAddress" column="return_deliver_user_address" jdbcType="VARCHAR"/>
+            <result property="returnDeliverUserPhone" column="return_deliver_user_phone" jdbcType="VARCHAR"/>
+            <result property="returnDeliverUserAge" column="return_deliver_user_age" jdbcType="INTEGER"/>
+            <result property="returnDeliverUserTime" column="return_deliver_user_time" jdbcType="VARCHAR"/>
             <result property="returnDeliverCompany" column="return_deliver_company" jdbcType="VARCHAR"/>
             <result property="returnDeliverId" column="return_deliver_id" jdbcType="VARCHAR"/>
             <result property="detectState" column="detect_state" jdbcType="INTEGER"/>
@@ -36,13 +42,14 @@
         <result property="productMainUrl" column="main_url" jdbcType="VARCHAR"/>
         <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
         <result property="price" column="price" jdbcType="INTEGER"/>
-        <result property="bindUserId" column="bing_user_id" jdbcType="BIGINT"/>
+        <result property="bindUserId" column="bind_user_id" jdbcType="BIGINT"/>
         <result property="bindUserName" column="bind_user_name" jdbcType="VARCHAR"/>
         <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
 
         <result property="canReportUpdate" column="can_report_update" jdbcType="INTEGER"/>
         <result property="updateProductId" column="update_product_id" jdbcType="BIGINT"/>
         <result property="updateSkuId" column="update_sku_id" jdbcType="BIGINT"/>
+        <result property="detectResult" column="report_is_normal" jdbcType="INTEGER"/>
 
         <collection property="skuAttributes" ofType="cn.lime.mall.model.vo.SkuAttributeVo">
             <id property="id" column="att_id" jdbcType="BIGINT"/>
@@ -57,6 +64,12 @@
         <result property="code" column="code" jdbcType="VARCHAR"/>
         <result property="qrCode" column="qrcode" jdbcType="VARCHAR"/>
         <result property="state" column="detect_state" jdbcType="INTEGER"/>
+        <result property="returnDeliverUserName" column="return_deliver_user_name" jdbcType="VARCHAR"/>
+        <result property="returnDeliverUserAge" column="return_deliver_user_age" jdbcType="INTEGER"/>
+        <result property="returnDeliverUserPhone" column="return_deliver_user_phone" jdbcType="VARCHAR"/>
+        <result property="returnDeliverUserPosition" column="return_deliver_user_position" jdbcType="VARCHAR"/>
+        <result property="returnDeliverUserAddress" column="return_deliver_user_address" jdbcType="VARCHAR"/>
+        <result property="returnDeliverVisitTime" column="return_deliver_user_time" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="BIGINT"/>
         <result property="relateOrderId" column="order_id" jdbcType="BIGINT"/>
         <result property="productId" column="product_id" jdbcType="BIGINT"/>
@@ -64,7 +77,7 @@
         <result property="productMainUrl" column="main_url" jdbcType="VARCHAR"/>
         <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
         <result property="price" column="price" jdbcType="INTEGER"/>
-        <result property="bindUserId" column="bing_user_id" jdbcType="BIGINT"/>
+        <result property="bindUserId" column="bind_user_id" jdbcType="BIGINT"/>
         <result property="bindUserName" column="bind_user_name" jdbcType="VARCHAR"/>
         <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
         <result property="returnDeliverCompany" column="return_deliver_company" jdbcType="VARCHAR"/>
@@ -72,6 +85,12 @@
         <result property="canReportUpdate" column="can_report_update" jdbcType="INTEGER"/>
         <result property="updateProductId" column="update_product_id" jdbcType="BIGINT"/>
         <result property="updateSkuId" column="update_sku_id" jdbcType="BIGINT"/>
+        <result property="reportName" column="report_name" jdbcType="VARCHAR"/>
+        <result property="reportTitle" column="report_title" jdbcType="VARCHAR"/>
+        <result property="reportResult" column="report_is_normal" jdbcType="INTEGER"/>
+        <result property="reportTime" column="report_time" jdbcType="BIGINT"/>
+        <result property="dbReportUrlStr" column="report_url" jdbcType="VARCHAR"/>
+        <result property="dbContactorStr" column="contactor_url" jdbcType="VARCHAR"/>
         <collection property="skuAttributes" ofType="cn.lime.mall.model.vo.SkuAttributeVo">
             <id property="id" column="att_id" jdbcType="BIGINT"/>
             <result property="skuId" column="sku_id" jdbcType="BIGINT"/>
@@ -100,6 +119,7 @@
                do.can_report_update,
                do.update_product_id,
                do.update_sku_id,
+               do.report_is_normal,
                UNIX_TIMESTAMP(do.gmt_created) as create_time,
                do.product_id,
                p.product_name,
@@ -142,7 +162,7 @@
         <if test="isUpdated != null">
             and do.is_updated = #{isUpdated}
         </if>
-        ORDER BY do.gmt_created DESC
+        ORDER BY do.bind_time DESC
     </select>
     <select id="detail" resultMap="detailVo">
         with pro_main_url as (SELECT pu.product_id,
@@ -155,6 +175,20 @@
                do.qrcode,
                do.order_id,
                do.detect_state,
+
+               do.report_title,
+               do.report_name,
+               do.report_is_normal,
+               do.report_time,
+               do.report_url,
+               do.contactor_url,
+
+               do.return_deliver_user_name,
+               do.return_deliver_user_age,
+               do.return_deliver_user_phone,
+               do.return_deliver_user_position,
+               do.return_deliver_user_address,
+               do.return_deliver_user_time,
                do.can_report_update,
                do.update_product_id,
                do.update_sku_id,

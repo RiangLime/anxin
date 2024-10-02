@@ -38,6 +38,21 @@ public class DetectOrderDetailVo implements Serializable {
     @Schema(description = "创建时间 秒级时间戳 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long createTime;
+
+    @Schema(description = "回寄信息 - 寄件人姓名")
+    private String returnDeliverUserName;
+    @Schema(description = "回寄信息 - 寄件人省市区")
+    private String returnDeliverUserPosition;
+    @Schema(description = "回寄信息 - 寄件人详细地址")
+    private String returnDeliverUserAddress;
+    @Schema(description = "回寄信息 - 寄件人手机号")
+    private String returnDeliverUserPhone;
+    @Schema(description = "回寄信息 - 检测人年龄")
+    private Integer returnDeliverUserAge;
+    @Schema(description = "回寄信息 - 回寄上门时间")
+    private String returnDeliverVisitTime;
+
+
     @Schema(description = "回寄物流公司")
     private String returnDeliverCompany;
     @Schema(description = "回寄物流单号")
@@ -76,8 +91,11 @@ public class DetectOrderDetailVo implements Serializable {
     private String reportName;
     @Schema(description = "报告标题")
     private String reportTitle;
-    @Schema(description = "是否正常 1正常 0异常")
-    private Integer reportIsNormal;
+    @Schema(description = "是否正常 1正常 0异常 2存疑")
+    private Integer reportResult;
+    @Schema(description = "报告上传时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long reportTime;
     @JsonIgnore
     private String dbReportUrlStr;
     @JsonIgnore
@@ -86,6 +104,7 @@ public class DetectOrderDetailVo implements Serializable {
     private List<String> reportUrls;
     @Schema(description = "联系医师图片URL")
     private List<String> contactorUrls;
+
     @Schema(description = "关联商城订单ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long relateOrderId;

@@ -57,7 +57,7 @@ public class OrderSuccessPaidNoticeConsumer {
                     && detectorder.getDetectState().equals(DetectOrderState.UPDATE_WAIT_PAID.getVal())){
                 boolean res = detectorderService.lambdaUpdate()
                         .eq(Detectorder::getId,detectorder.getId())
-                        .set(Detectorder::getDetectState,DetectOrderState.TO_BE_DETECT.getVal())
+                        .set(Detectorder::getDetectState,DetectOrderState.DETECTING.getVal())
                         .update();
                 if (!res){
                     throw new Exception("消费者任务更新升级报告订单状态异常,id:"+orderIdStr);

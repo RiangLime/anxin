@@ -3,6 +3,8 @@ package cn.lime.anxin;
 import cn.lime.anxin.utils.DetectOrderCodeGenerator;
 import cn.lime.core.aes.AesUtils;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
@@ -22,7 +24,13 @@ public class SingleTest {
         System.out.println(aesUtils.encrypt("admin888"));
 //        String a = DetectOrderCodeGenerator.generateUniqueCode();
 //        System.out.println(a);
+        String a = null;
+        String b = "";
+        System.out.println(StringUtils.isBlank(a));
 
+        System.out.println(StringUtils.isNoneEmpty(b));
+        System.out.println(b == null);
+        System.out.println(b.length());
     }
 
 }

@@ -6,10 +6,7 @@ import cn.lime.anxin.model.vo.DetectOrderDetailVo;
 import cn.lime.anxin.model.vo.DetectOrderPageVo;
 import cn.lime.anxin.model.vo.QrCodeVo;
 import cn.lime.anxin.utils.DetectOrderCodeGenerator;
-import cn.lime.core.common.ErrorCode;
-import cn.lime.core.common.PageResult;
-import cn.lime.core.common.PageUtils;
-import cn.lime.core.common.ThrowUtils;
+import cn.lime.core.common.*;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
@@ -17,6 +14,7 @@ import cn.lime.core.threadlocal.ReqThreadLocal;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.service.db.OrderService;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.anxin.model.entity.Detectorder;
@@ -31,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -94,7 +93,7 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
         ThrowUtils.throwIf(ObjectUtils.isNotEmpty(detectorder.getBindUserId()), ErrorCode.PARAMS_ERROR, "该二维码已被绑定");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getBindUserId, ReqThreadLocal.getInfo().getUserId())
-                .set(Detectorder::getDetectState, DetectOrderState.TO_BE_SAMPLING.getVal())
+                .set(Detectorder::getDetectState, DetectOrderState.READY_TO_RETURN.getVal())
                 .set(Detectorder::getBindTime, new Date())
                 .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
     }
@@ -102,7 +101,8 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     @Override
     public void setReturnDeliverInfo(String code, String deliverCompany, String deliverCode) {
         Detectorder detectorder = getByCode(code);
-        ThrowUtils.throwIf(!detectorder.getDetectState().equals(DetectOrderState.READY_TO_RETURN.getVal()),
+        ThrowUtils.throwIf(!detectorder.getDetectState().equals(DetectOrderState.READY_TO_RETURN.getVal())
+                        && !detectorder.getDetectState().equals(DetectOrderState.RETURNING.getVal()),
                 ErrorCode.AUTH_FAIL, "用户还未完成采样");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getReturnDeliverId, deliverCode)
@@ -160,12 +160,35 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     @Override
     public DetectOrderDetailVo getDetectOrderDetail(Long id) {
         DetectOrderDetailVo vo = baseMapper.detail(id);
-        if (ObjectUtils.isNotEmpty(vo.getRelateOrderId())) {
-            OrderDetailVo orderDetailVo = orderService.getOrderDetail(vo.getRelateOrderId());
-            vo.setOrderDetailVo(orderDetailVo);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(vo), ErrorCode.NOT_FOUND_ERROR);
+        if (ReqThreadLocal.getInfo().getAuthLevel() == AuthLevel.ADMIN.getVal()
+                || ReqThreadLocal.getInfo().getUserId().equals(vo.getBindUserId())) {
+            if (ObjectUtils.isNotEmpty(vo.getRelateOrderId())) {
+                OrderDetailVo orderDetailVo = orderService.getOrderDetail(vo.getRelateOrderId());
+                vo.setOrderDetailVo(orderDetailVo);
+            }
+            vo.form();
+            return vo;
+        } else {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        vo.form();
-        return vo;
+    }
+
+    @Override
+    public void userSetReturnDeliverInfo(String code, String returnDeliverUserName, String returnDeliverUserPosition,
+                                         String returnDeliverUserAddress, String returnDeliverUserPhone,
+                                         Integer returnDeliverUserAge, String returnDeliverVisitTime) {
+        Detectorder detectorder = getByCode(code);
+        ThrowUtils.throwIf(!Objects.equals(detectorder.getBindUserId(), ReqThreadLocal.getInfo().getUserId())
+                && ReqThreadLocal.getInfo().getAuthLevel() < AuthLevel.ADMIN.getVal(), ErrorCode.NO_AUTH_ERROR);
+        lambdaUpdate().eq(Detectorder::getCode, code)
+                .set(Detectorder::getReturnDeliverUserName, returnDeliverUserName)
+                .set(Detectorder::getReturnDeliverUserAge, returnDeliverUserAge)
+                .set(Detectorder::getReturnDeliverUserPhone, returnDeliverUserPhone)
+                .set(Detectorder::getReturnDeliverUserPosition, returnDeliverUserPosition)
+                .set(Detectorder::getReturnDeliverUserAddress, returnDeliverUserAddress)
+                .set(Detectorder::getReturnDeliverUserTime, returnDeliverVisitTime)
+                .update();
     }
 }
 
