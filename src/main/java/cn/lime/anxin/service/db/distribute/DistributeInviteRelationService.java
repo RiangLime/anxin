@@ -1,7 +1,10 @@
 package cn.lime.anxin.service.db.distribute;
 
 import cn.lime.anxin.model.entity.DistributeInviteRelation;
+import cn.lime.anxin.model.vo.distribute.DistributeRelatorVo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
 * @author riang
@@ -13,4 +16,7 @@ public interface DistributeInviteRelationService extends IService<DistributeInvi
      * 通过邀请的新用户注册
      */
     void inviteeRegister(Long inviteeId,Long inviterId);
+
+    DistributeRelatorVo queryUpstream(Long userId);
+    List<DistributeRelatorVo> queryDownstream(Long userId);
 }

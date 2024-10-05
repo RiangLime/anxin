@@ -17,4 +17,7 @@
         id,order_id,op_type,
         user_id,amount,gmt_created
     </sql>
+    <select id="pages" resultType="cn.lime.anxin.model.entity.DistributeOrderLog">
+        SELECT * FROM Distribute_Order_Log dol WHERE user_id = #{userId}
+    </select>
 </mapper>

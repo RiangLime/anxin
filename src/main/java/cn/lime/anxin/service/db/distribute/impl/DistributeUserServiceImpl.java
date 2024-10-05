@@ -1,10 +1,19 @@
 package cn.lime.anxin.service.db.distribute.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.lime.anxin.model.entity.DistributeInviteRelation;
+import cn.lime.anxin.model.entity.DistributeOrderLog;
+import cn.lime.anxin.model.vo.distribute.DistributeRelatorVo;
+import cn.lime.anxin.model.vo.distribute.DistributeSummaryVo;
+import cn.lime.anxin.model.vo.distribute.UserDistributeOrderLogVo;
 import cn.lime.anxin.service.db.distribute.DistributeInviteRelationService;
 import cn.lime.anxin.service.db.distribute.DistributeOrderLogService;
 import cn.lime.core.common.ErrorCode;
+import cn.lime.core.common.PageResult;
 import cn.lime.core.common.ThrowUtils;
+import cn.lime.mall.model.vo.OrderDetailVo;
+import cn.lime.mall.service.db.OrderService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.anxin.model.entity.DistributeUser;
 import cn.lime.anxin.service.db.distribute.DistributeUserService;
@@ -15,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +40,8 @@ public class DistributeUserServiceImpl extends ServiceImpl<DistributeUserMapper,
     private DistributeInviteRelationService relationService;
     @Resource
     private DistributeOrderLogService logService;
+    @Resource
+    private OrderService orderService;
 
     @Override
     @Transactional
@@ -72,6 +84,39 @@ public class DistributeUserServiceImpl extends ServiceImpl<DistributeUserMapper,
                 .set(DistributeUser::getAssetsGet, user.getAssetsGet() + price)
                 .update(), ErrorCode.UPDATE_ERROR, "更新分销商余额异常");
         logService.withdraw(userId,price);
+    }
+
+    @Override
+    public DistributeSummaryVo getUserInfo(Long userId,Integer current,Integer pageSize) {
+        DistributeSummaryVo summaryVo = new DistributeSummaryVo();
+        // 用户本身信息
+        DistributeUser userInfo = getById(userId);
+        summaryVo.setCanWithdrawNumber(userInfo.getAssetsRemain());
+        summaryVo.setAlreadyWithdrawNumber(userInfo.getAssetsGet());
+
+        // 上下级信息
+        DistributeRelatorVo upstreamInfo = relationService.queryUpstream(userId);
+        summaryVo.setUpstreamUserInfo(upstreamInfo);
+        List<DistributeRelatorVo> downstreamInfo = relationService.queryDownstream(userId);
+        summaryVo.setDownstreamUserInfo(downstreamInfo);
+
+        // 分销订单信息
+        Page<DistributeOrderLog> orderLogs =  logService.pages(userId,current,pageSize);
+        List<UserDistributeOrderLogVo> logs = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(orderLogs.getRecords())){
+            for (DistributeOrderLog record : orderLogs.getRecords()) {
+                UserDistributeOrderLogVo vo = new UserDistributeOrderLogVo();
+                vo.setOpType(record.getOpType());
+                vo.setAmount(record.getAmount());
+                OrderDetailVo orderDetailVo = orderService.getOrderDetail(record.getOrderId());
+                BeanUtil.copyProperties(orderDetailVo,vo);
+                logs.add(vo);
+            }
+        }
+        PageResult<UserDistributeOrderLogVo> distributeOrdersPageInfo = new PageResult<>(orderLogs,logs);
+        summaryVo.setDistributeOrderPage(distributeOrdersPageInfo);
+
+        return summaryVo;
     }
 }
 

@@ -198,4 +198,3 @@ INSERT INTO anxin.Product
 (product_id, product_code, product_name, product_description, product_state, visible, product_sort)
 VALUES (1, 'DO NOT EDIT', '自选定制 - 请勿修改',
         '[{"content":"http://47.116.166.113/uploads/WechatIMG864.jpg","order":0,"link":"","linkName":""}]', 1, 1, 1);
-

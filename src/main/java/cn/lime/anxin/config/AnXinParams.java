@@ -18,4 +18,7 @@ public class AnXinParams {
     @Value("${anxin.qrcode-prefix:}")
     private String qrCodePrefix;
 
+    @Value("${anxin.statistic-days:14}")
+    private Integer statisticDays;
+
 }

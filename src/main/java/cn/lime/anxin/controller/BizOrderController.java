@@ -50,7 +50,7 @@ public class BizOrderController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<UpdateOrderVo> createOrder(@RequestBody @Valid OrderCreateByUpdateReportDto dto, BindingResult result) {
         OrderItemDto orderItem = new OrderItemDto(dto.getProductId(),dto.getSkuId(),dto.getNumber());
-        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), List.of(orderItem), dto.getRemark());
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), List.of(orderItem), dto.getRemark(),dto.getDiscountId());
         OrderDetailVo orderVo = orderService.getOrderDetail(order.getOrderId());
         QrCodeVo qrCodeVo = detectorderService.copyFromDetectOrder(dto.getPreCode(),dto.getProductId(),dto.getSkuId(),orderVo.getOrderId());
         // 创建一个新的检测订单

@@ -4,10 +4,13 @@ import cn.lime.anxin.constants.DistributeOrderOpType;
 import cn.lime.anxin.model.entity.DistributeUser;
 import cn.lime.anxin.service.db.distribute.DistributeUserService;
 import cn.lime.core.common.ErrorCode;
+import cn.lime.core.common.PageResult;
+import cn.lime.core.common.PageUtils;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.service.db.OrderService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.lime.anxin.model.entity.DistributeOrderLog;
 import cn.lime.anxin.service.db.distribute.DistributeOrderLogService;
@@ -50,6 +53,13 @@ public class DistributeOrderLogServiceImpl extends ServiceImpl<DistributeOrderLo
         // 固定是收入
         log.setOpType(DistributeOrderOpType.WITHDRAW.getVal());
         ThrowUtils.throwIf(!save(log), ErrorCode.INSERT_ERROR);
+    }
+
+    @Override
+    public Page<DistributeOrderLog> pages(Long userId, Integer current, Integer pageSize) {
+        Page<DistributeOrderLog> page = PageUtils.build(DistributeOrderLog.class,current,pageSize,"gmt_created","ascend");
+        Page<DistributeOrderLog> pageRes = lambdaQuery().eq(DistributeOrderLog::getUserId,userId).page(page);
+        return pageRes;
     }
 }
 

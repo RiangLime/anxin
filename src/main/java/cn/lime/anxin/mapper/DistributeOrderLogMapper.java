@@ -2,6 +2,7 @@ package cn.lime.anxin.mapper;
 
 import cn.lime.anxin.model.entity.DistributeOrderLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 /**
 * @author riang
@@ -10,7 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity cn.lime.anxin.model.entity.DistributeOrderLog
 */
 public interface DistributeOrderLogMapper extends BaseMapper<DistributeOrderLog> {
-
+    Page<DistributeOrderLog> pages(Long userId,Page<?> page);
 }
 
 

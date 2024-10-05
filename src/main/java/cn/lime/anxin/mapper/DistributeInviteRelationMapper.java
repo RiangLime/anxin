@@ -1,7 +1,10 @@
 package cn.lime.anxin.mapper;
 
 import cn.lime.anxin.model.entity.DistributeInviteRelation;
+import cn.lime.anxin.model.vo.distribute.DistributeRelatorVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author riang
@@ -10,7 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity cn.lime.anxin.model.entity.DistributeInviteRelation
 */
 public interface DistributeInviteRelationMapper extends BaseMapper<DistributeInviteRelation> {
-
+    List<DistributeRelatorVo> queryDirectDownstream(Long inviterId,Integer currentLevel);
 }
 
 

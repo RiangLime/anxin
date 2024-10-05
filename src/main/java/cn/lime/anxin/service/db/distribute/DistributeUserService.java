@@ -1,6 +1,7 @@
 package cn.lime.anxin.service.db.distribute;
 
 import cn.lime.anxin.model.entity.DistributeUser;
+import cn.lime.anxin.model.vo.distribute.DistributeSummaryVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -12,4 +13,6 @@ public interface DistributeUserService extends IService<DistributeUser> {
     void addDistributor(Long userId);
     void updateDistributorLevel(Long userId,Integer level);
     void userWithdraw(Long userId,Integer price);
+
+    DistributeSummaryVo getUserInfo(Long userId, Integer current, Integer pageSize);
 }
