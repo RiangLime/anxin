@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 public class DistributeSummaryVo implements Serializable {
 
+    private Integer isDistributor;
+
     // 个人佣金信息
     private Integer canWithdrawNumber;
     private Integer alreadyWithdrawNumber;

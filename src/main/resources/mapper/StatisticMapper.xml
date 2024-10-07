@@ -15,24 +15,26 @@
         <result property="count" column="count" jdbcType="INTEGER"/>
     </resultMap>
 
-    <select id="getDayTokens" resultMap="visitorDateVo">
-        SELECT DISTINCT token,
-                        DATE(gmt_created) AS date
-        FROM System_Log
-        WHERE DATE(gmt_created) = DATE_SUB(CURDATE(), INTERVAL #{days} DAY) -- 筛选前天的数据
-          AND token IS NOT NULL                                             -- 排除 token 为 NULL 的记录
-          AND token != ''
-
+    <select id="getDayVisitors" resultMap="dateCntVo">
+        WITH RECURSIVE DateRange AS (
+        SELECT CURDATE() - INTERVAL #{days} DAY AS call_date  -- 生成第一个日期，即 15 天前
         UNION ALL
-
-        SELECT NULL                                      AS token, -- 或者可以填入一个默认的 token 值
-               DATE_SUB(CURDATE(), INTERVAL #{days} DAY) AS date   -- 确保这个日期字段始终有值
-        WHERE NOT EXISTS (SELECT 1
-                          FROM System_Log
-                          WHERE DATE(gmt_created) = DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
-                            AND token IS NOT NULL
-                            AND token != ''); -- 检查前天是否有记录
-
+        SELECT call_date + INTERVAL 1 DAY                -- 递归生成接下来的日期
+        FROM DateRange
+        WHERE call_date + INTERVAL 1 DAY &lt;= CURDATE()    -- 直到当前日期
+        )
+        SELECT
+        d.call_date as date,                                    -- 生成的日期
+        COUNT(DISTINCT user_id) AS count                      -- 如果没有记录，count 为 0
+        FROM
+        DateRange d
+        LEFT JOIN
+        System_Log sl
+        ON DATE(sl.gmt_created) = d.call_date           -- 将系统日志按日期与生成的日期表连接
+        GROUP BY
+        d.call_date
+        ORDER BY
+        d.call_date ASC;
     </select>
 
     <select id="getDailyOrders" resultMap="dateCntVo">

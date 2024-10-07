@@ -11,6 +11,7 @@ import cn.lime.anxin.service.db.distribute.DistributeOrderLogService;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.PageResult;
 import cn.lime.core.common.ThrowUtils;
+import cn.lime.core.constant.YesNoEnum;
 import cn.lime.mall.model.vo.OrderDetailVo;
 import cn.lime.mall.service.db.OrderService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -91,6 +92,11 @@ public class DistributeUserServiceImpl extends ServiceImpl<DistributeUserMapper,
         DistributeSummaryVo summaryVo = new DistributeSummaryVo();
         // 用户本身信息
         DistributeUser userInfo = getById(userId);
+        if (ObjectUtils.isEmpty(userInfo)){
+            summaryVo.setIsDistributor(YesNoEnum.NO.getVal());
+            return summaryVo;
+        }
+        summaryVo.setIsDistributor(YesNoEnum.YES.getVal());
         summaryVo.setCanWithdrawNumber(userInfo.getAssetsRemain());
         summaryVo.setAlreadyWithdrawNumber(userInfo.getAssetsGet());
 
