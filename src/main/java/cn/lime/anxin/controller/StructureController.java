@@ -1,6 +1,7 @@
 package cn.lime.anxin.controller;
 
 import cn.lime.anxin.model.dto.structure.AdDetailDto;
+import cn.lime.anxin.model.dto.structure.GetShareQrCodeDto;
 import cn.lime.anxin.model.entity.Homepagestructure;
 import cn.lime.anxin.model.vo.AdDetailVo;
 import cn.lime.anxin.model.vo.AdListVo;
@@ -75,9 +76,9 @@ public class StructureController {
     @Operation(summary = "获取推广二维码")
     @AuthCheck(needToken = true,authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
-    public BaseResponse<String> getShareQrCode(@RequestBody @Valid EmptyDto dto, BindingResult result) {
+    public BaseResponse<String> getShareQrCode(@RequestBody @Valid GetShareQrCodeDto dto, BindingResult result) {
         String base64Code = wxMpOuterService.getShareCode(coreParams.getWxMpAppId(),coreParams.getWxMpSecretId(),
-                "pages/index/index","userId="+ ReqThreadLocal.getInfo().getUserId());
+                dto.getWxPage(),"userId="+ ReqThreadLocal.getInfo().getUserId(),dto.getCheckPath(),dto.getWxEnv());
         return ResultUtils.success(base64Code);
     }
 
