@@ -102,7 +102,6 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
         ThrowUtils.throwIf(ObjectUtils.isNotEmpty(detectorder.getBindUserId()), ErrorCode.PARAMS_ERROR, "该二维码已被绑定");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getBindUserId, ReqThreadLocal.getInfo().getUserId())
-                .set(Detectorder::getDetectState, DetectOrderState.READY_TO_RETURN.getVal())
                 .set(Detectorder::getBindTime, Date.from(now))
                 .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
     }
@@ -191,6 +190,9 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
         Detectorder detectorder = getByCode(code);
         ThrowUtils.throwIf(!Objects.equals(detectorder.getBindUserId(), ReqThreadLocal.getInfo().getUserId())
                 && ReqThreadLocal.getInfo().getAuthLevel() < AuthLevel.ADMIN.getVal(), ErrorCode.NO_AUTH_ERROR);
+        if (StringUtils.isNotEmpty(detectorder.getReturnDeliverUserPhone())){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"您已填写过回寄信息,如有修改请联系管理员");
+        }
         lambdaUpdate().eq(Detectorder::getCode, code)
                 .set(Detectorder::getReturnDeliverUserName, returnDeliverUserName)
                 .set(Detectorder::getReturnDeliverUserAge, returnDeliverUserAge)
