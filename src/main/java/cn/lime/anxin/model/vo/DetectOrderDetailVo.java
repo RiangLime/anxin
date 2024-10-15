@@ -113,6 +113,8 @@ public class DetectOrderDetailVo implements Serializable {
 
     @Schema(description = "报告是否能升级")
     private Integer canReportUpdate;
+    @Schema(description = "报告是否已经升级")
+    private Integer hasUpdated;
     @Schema(description = "升级报告对应的产品ID 序列化为String")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long updateProductId;

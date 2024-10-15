@@ -20,6 +20,8 @@ public class AdAddDto implements Serializable {
     private String title;
     @Schema(description = "广告图片")
     private String picture;
+    @Schema(description = "类型 1广告 2评论 默认为1")
+    private Integer type = 1;
     @Schema(description = "广告内部结构")
     private List<AdStructureDto> structures;
 }

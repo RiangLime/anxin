@@ -62,6 +62,8 @@ core:
       app-id: ${mp_app_id:wxc449a89ac5cc9210}
       secret-id: ${mp_secret_id:}
 mall:
+  auto-receive-day: ${auto-receive-day:14}
+  auto-finish-day: ${auto-finish-day:7}
   pay:
     wx:
       merchant-id: ${wx_pay_merchant_id:}

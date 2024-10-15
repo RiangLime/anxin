@@ -25,8 +25,10 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +71,11 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     @Override
     public QrCodeVo copyFromDetectOrder(String oldCode, Long productId, Long skuId, Long orderId) {
         Detectorder old = getByCode(oldCode);
+        if (old.getHasUpdated().equals(YesNoEnum.YES.getVal())){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"该检测已经升级过报告,请勿重复升级");
+        }
+        ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getCode,oldCode).set(Detectorder::getHasUpdated,YesNoEnum.YES.getVal()).update(),
+                ErrorCode.UPDATE_ERROR,"更新旧检测订单异常");
         Detectorder detectorder = new Detectorder();
         detectorder.setId(ids.nextId());
         detectorder.setCode(DetectOrderCodeGenerator.generateUniqueCode());
@@ -90,11 +97,13 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     @Transactional
     public void bind(String code) {
         Detectorder detectorder = getByCode(code);
+        // 获取当前UTC时间
+        Instant now = Instant.now();
         ThrowUtils.throwIf(ObjectUtils.isNotEmpty(detectorder.getBindUserId()), ErrorCode.PARAMS_ERROR, "该二维码已被绑定");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
                 .set(Detectorder::getBindUserId, ReqThreadLocal.getInfo().getUserId())
                 .set(Detectorder::getDetectState, DetectOrderState.READY_TO_RETURN.getVal())
-                .set(Detectorder::getBindTime, new Date())
+                .set(Detectorder::getBindTime, Date.from(now))
                 .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
     }
 
@@ -135,25 +144,26 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     public void uploadReport(String code, String title, String name, Integer isNormal, Integer canUpdate, Long proId,
                              Long skuId, List<String> reportUrls, List<String> contactorUrls) {
         Detectorder detectorder = getByCode(code);
-        ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
-                .set(Detectorder::getDetectState, DetectOrderState.FINISH.getVal())
-                .set(Detectorder::getReportTitle, title)
-                .set(Detectorder::getReportName, name)
-                .set(Detectorder::getReportIsNormal, isNormal)
-                .set(Detectorder::getReportUrl, JSON.toJSONString(reportUrls))
-                .set(Detectorder::getContactorUrl, JSON.toJSONString(contactorUrls))
-                .set(Detectorder::getCanReportUpdate, canUpdate)
-                .set(Detectorder::getUpdateProductId, proId)
-                .set(Detectorder::getUpdateSkuId, skuId)
-                .update(), ErrorCode.UPDATE_ERROR, "用户确认准备寄回商品失败");
+        LambdaUpdateWrapper<Detectorder> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(Detectorder::getId,detectorder.getId());
+        wrapper.set(Detectorder::getDetectState, DetectOrderState.FINISH.getVal());
+        if (StringUtils.isNotEmpty(title)) wrapper.set(Detectorder::getReportTitle, title);
+        if (StringUtils.isNotEmpty(name)) wrapper.set(Detectorder::getReportName, name);
+        if (ObjectUtils.isNotEmpty(isNormal)) wrapper.set(Detectorder::getReportTitle, isNormal);
+        if (!CollectionUtils.isEmpty(reportUrls)) wrapper.set(Detectorder::getReportTitle, JSON.toJSONString(reportUrls));
+        if (!CollectionUtils.isEmpty(contactorUrls)) wrapper.set(Detectorder::getReportTitle, JSON.toJSONString(contactorUrls));
+        if (ObjectUtils.isNotEmpty(canUpdate)) wrapper.set(Detectorder::getReportTitle, canUpdate);
+        if (ObjectUtils.isNotEmpty(proId)) wrapper.set(Detectorder::getReportTitle, proId);
+        if (ObjectUtils.isNotEmpty(skuId)) wrapper.set(Detectorder::getReportTitle, skuId);
+        ThrowUtils.throwIf(!update(wrapper), ErrorCode.UPDATE_ERROR, "管理员上传报告失败");
     }
 
     @Override
     public PageResult<DetectOrderPageVo> pageDetectOrders(Long bindUserId, String userName, String productName, String code,
-                                                          Integer state, Integer canUpdate, Integer isUpdated,
+                                                          Integer state, Integer canUpdate, Integer isUpdated, Integer isBind,
                                                           Integer current, Integer pageSize) {
         Page<?> page = PageUtils.build(current, pageSize, null, null);
-        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId, userName, productName, code, state, canUpdate, isUpdated, page);
+        Page<DetectOrderPageVo> res = baseMapper.page(bindUserId, userName, productName, code, state, canUpdate, isUpdated, isBind, page);
         return new PageResult<>(res);
     }
 
@@ -189,6 +199,11 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
                 .set(Detectorder::getReturnDeliverUserAddress, returnDeliverUserAddress)
                 .set(Detectorder::getReturnDeliverUserTime, returnDeliverVisitTime)
                 .update();
+    }
+
+    @Override
+    public List<Long> getUpdateWaitingSendOrderIds() {
+        return baseMapper.getUpdateWaitingSendOrderIds();
     }
 }
 

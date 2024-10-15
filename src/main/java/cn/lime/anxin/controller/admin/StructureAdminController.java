@@ -41,7 +41,7 @@ public class StructureAdminController {
     @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
     @DtoCheck(checkBindResult = true)
     public BaseResponse<Void> addAd(@RequestBody @Valid AdAddDto dto, BindingResult result) {
-        adService.addAd(dto.getTitle(),dto.getPicture(),dto.getStructures());
+        adService.addAd(dto.getTitle(),dto.getType(),dto.getPicture(),dto.getStructures());
         return ResultUtils.success(null);
     }
 

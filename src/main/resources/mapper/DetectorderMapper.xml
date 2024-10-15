@@ -25,6 +25,7 @@
             <result property="reportIsNormal" column="report_is_normal" jdbcType="TINYINT"/>
             <result property="reportTime" column="report_time" jdbcType="BIGINT"/>
             <result property="reportUrl" column="report_url" jdbcType="VARCHAR"/>
+            <result property="hasUpdated" column="has_updated" jdbcType="INTEGER"/>
             <result property="contactorUrl" column="contactor_url" jdbcType="VARCHAR"/>
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
             <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
@@ -47,6 +48,7 @@
         <result property="bindTime" column="bind_time" jdbcType="BIGINT"/>
 
         <result property="canReportUpdate" column="can_report_update" jdbcType="INTEGER"/>
+        <result property="hasUpdated" column="has_updated" jdbcType="INTEGER"/>
         <result property="updateProductId" column="update_product_id" jdbcType="BIGINT"/>
         <result property="updateSkuId" column="update_sku_id" jdbcType="BIGINT"/>
         <result property="detectResult" column="report_is_normal" jdbcType="INTEGER"/>
@@ -83,6 +85,7 @@
         <result property="returnDeliverCompany" column="return_deliver_company" jdbcType="VARCHAR"/>
         <result property="returnDeliverCode" column="return_deliver_id" jdbcType="VARCHAR"/>
         <result property="canReportUpdate" column="can_report_update" jdbcType="INTEGER"/>
+        <result property="hasUpdated" column="has_updated" jdbcType="INTEGER"/>
         <result property="updateProductId" column="update_product_id" jdbcType="BIGINT"/>
         <result property="updateSkuId" column="update_sku_id" jdbcType="BIGINT"/>
         <result property="reportName" column="report_name" jdbcType="VARCHAR"/>
@@ -104,7 +107,7 @@
         bind_time,return_deliver_company,return_deliver_id,
         detect_state,report_title,report_is_normal,
         report_time,report_url,contactor_url,
-        gmt_created,gmt_modified
+        gmt_created,gmt_modified,has_updated
     </sql>
     <select id="page" resultMap="pageVo">
         with pro_main_url as (SELECT pu.product_id,
@@ -117,6 +120,7 @@
                do.qrcode,
                do.detect_state,
                do.can_report_update,
+               do.has_updated,
                do.update_product_id,
                do.update_sku_id,
                do.report_is_normal,
@@ -162,6 +166,14 @@
         <if test="isUpdated != null">
             and do.is_updated = #{isUpdated}
         </if>
+        <if test="isBind != null">
+            <if test="isBind == 1">
+                and do.bind_user_id is not null
+            </if>
+            <if test="isBind == 0">
+                and do.bind_user_id is null
+            </if>
+        </if>
         ORDER BY do.bind_time DESC
     </select>
     <select id="detail" resultMap="detailVo">
@@ -190,6 +202,7 @@
                do.return_deliver_user_address,
                do.return_deliver_user_time,
                do.can_report_update,
+               do.has_updated,
                do.update_product_id,
                do.update_sku_id,
                UNIX_TIMESTAMP(do.gmt_created) as create_time,
@@ -215,5 +228,23 @@
                  LEFT JOIN SkuAttribute sa on s.sku_id = sa.sku_id
                  LEFT JOIN `User` u on u.user_id = do.bind_user_id
         where do.id = #{id}
+    </select>
+
+    <!--  升级报告的订单不需要发货 直接  -->
+    <select id="getUpdateWaitingSendOrderIds" resultType="java.lang.Long">
+        SELECT
+            o.order_id
+        FROM
+            (
+                SELECT
+                    order_id
+                FROM
+                    DetectOrder do
+                WHERE
+                    do.is_updated = 1) t
+                LEFT JOIN `Order` o on
+                t.order_id = o.order_id
+        WHERE
+            o.order_status = 2
     </select>
 </mapper>

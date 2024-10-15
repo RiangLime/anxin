@@ -34,8 +34,10 @@ public interface DetectorderService extends IService<Detectorder> {
     void uploadReport(String code, String title, String name, Integer isNormal, Integer canUpdate, Long proId, Long skuId, List<String> reportUrls, List<String> contactorUrls);
 
     PageResult<DetectOrderPageVo> pageDetectOrders(Long bindUserId, String userName, String productName, String code,
-                                                   Integer state, Integer canUpdate, Integer isUpdated,
+                                                   Integer state, Integer canUpdate, Integer isUpdated, Integer isBind,
                                                    Integer current, Integer pageSize);
 
     DetectOrderDetailVo getDetectOrderDetail(Long id);
+
+    List<Long> getUpdateWaitingSendOrderIds();
 }

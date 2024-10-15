@@ -130,6 +130,9 @@ public class Detectorder implements Serializable {
     @TableField(value = "can_report_update")
     private Integer canReportUpdate;
 
+    @TableField(value = "has_updated")
+    private Integer hasUpdated;
+
     @TableField(value = "update_product_id")
     private Long updateProductId;
 

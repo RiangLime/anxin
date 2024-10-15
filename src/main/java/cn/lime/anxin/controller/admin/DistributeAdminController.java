@@ -1,14 +1,8 @@
 package cn.lime.anxin.controller.admin;
 
 import cn.lime.anxin.model.dto.distribute.*;
-import cn.lime.anxin.model.vo.distribute.ApplicationPageVo;
-import cn.lime.anxin.model.vo.distribute.DistributeLevelVo;
-import cn.lime.anxin.model.vo.distribute.DistributeWithdrawVo;
-import cn.lime.anxin.model.vo.distribute.ProductWithDistributeTagPageVo;
-import cn.lime.anxin.service.db.distribute.DistributeApplicationService;
-import cn.lime.anxin.service.db.distribute.DistributeLevelService;
-import cn.lime.anxin.service.db.distribute.DistributeProductService;
-import cn.lime.anxin.service.db.distribute.DistributeWithdrawService;
+import cn.lime.anxin.model.vo.distribute.*;
+import cn.lime.anxin.service.db.distribute.*;
 import cn.lime.core.annotation.AuthCheck;
 import cn.lime.core.annotation.DtoCheck;
 import cn.lime.core.annotation.RequestLog;
@@ -41,6 +35,8 @@ public class DistributeAdminController {
     @Resource
     private DistributeApplicationService applicationService;
     @Resource
+    private DistributeUserService distributeUserService;
+    @Resource
     private DistributeLevelService levelService;
     @Resource
     private DistributeProductService productService;
@@ -65,6 +61,23 @@ public class DistributeAdminController {
         PageResult<ApplicationPageVo> vo = applicationService.pageApplications(dto.getUserId(), dto.getRegion(),dto.getApplyTimeStart(),
                 dto.getApplyTimeEnd(), dto.getState(),dto.getQueryField(), dto.getCurrent(),dto.getPageSize());
         return ResultUtils.success(vo);
+    }
+
+    @PostMapping("/distributor/all")
+    @Operation(summary = "管理员查看所有经销商信息")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<List<LevelDistributorInfo>> getAllDistributors(@Valid @RequestBody EmptyDto dto, BindingResult result){
+        return ResultUtils.success(distributeUserService.getAllDistributorInfo());
+    }
+
+    @PostMapping("/distributor/updateuserupstream")
+    @Operation(summary = "管理员更新目标用户分销上级")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<Void> updateUserUpstream(@Valid @RequestBody DistributorUpstreamUpdateDto dto, BindingResult result){
+        distributeUserService.updateDistributorUpstream(dto.getUserId(),dto.getInviterId());
+        return ResultUtils.success(null);
     }
 
     @PostMapping("/withdraw/review")

@@ -68,7 +68,8 @@ public class DetectOrderAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<DetectOrderPageVo>> page(@RequestBody @Valid DetectOrderPageAdminDto dto, BindingResult result) {
         return ResultUtils.success(service.pageDetectOrders(dto.getUserId(), dto.getUserName(), dto.getProductName(),
-                dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),dto.getCurrent(),dto.getPageSize()));
+                dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),dto.getIsBind(),
+                dto.getCurrent(),dto.getPageSize()));
     }
 
     @PostMapping("/detail")

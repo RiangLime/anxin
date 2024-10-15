@@ -25,6 +25,7 @@ create table DetectOrder
     report_url                   nvarchar(1024)         default '[]' comment '报告URL JSON List',
     contactor_url                nvarchar(1024)         default '[]' comment '医师联系方式 JSON List',
     can_report_update            tinyint                default 0 comment '报告是否可以进行升级 0不可 1可以',
+    has_updated                  tinyint                default 0 comment '该报告是否已经升级过',
     update_product_id            bigint        null comment '升级产品ID',
     update_sku_id                bigint        null comment '升级SKU ID',
     gmt_created                  timestamp              default CURRENT_TIMESTAMP comment '创建时间',
@@ -43,7 +44,7 @@ create table Advertisement
 (
     id          int           not null primary key auto_increment comment 'id',
     title       nvarchar(255) null comment '广告标题',
-    type        int       default 1 comment '1广告',
+    type        int       default 1 comment '1广告 2评论',
     picture     nvarchar(255) null comment '广告图片',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
 ) comment '广告表 扩展为所有单页推广' collate = utf8mb4_unicode_ci;;
@@ -198,3 +199,10 @@ INSERT INTO anxin.Product
 (product_id, product_code, product_name, product_description, product_state, visible, product_sort)
 VALUES (1, 'DO NOT EDIT', '自选定制 - 请勿修改',
         '[{"content":"http://47.116.166.113/uploads/WechatIMG864.jpg","order":0,"link":"","linkName":""}]', 1, 1, 1);
+
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814400970133504, 0, '热门商品');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814448843919360, 0, '智慧自检');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814476299833344, 0, '营养定制');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814507836805120, 0, '健康服务');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814535284330496, 0, '维尔生活');
+

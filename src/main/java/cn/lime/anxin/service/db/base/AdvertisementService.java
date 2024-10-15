@@ -14,7 +14,7 @@ import java.util.List;
 * @createDate 2024-08-20 15:37:08
 */
 public interface AdvertisementService extends IService<Advertisement> {
-    void addAd(String title, String picture, List<AdStructureDto> adStructures);
+    void addAd(String title, Integer type, String picture, List<AdStructureDto> adStructures);
     void updateAd(Integer adId,String title, String picture, List<AdStructureDto> adStructures);
     void deleteAd(Integer adId);
     List<AdListVo> listAds();

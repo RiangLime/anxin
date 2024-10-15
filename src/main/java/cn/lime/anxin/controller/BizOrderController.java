@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +49,7 @@ public class BizOrderController {
     @Operation(summary = "用户通过升级报告创建订单")
     @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
     @DtoCheck(checkBindResult = true)
+    @Transactional
     public BaseResponse<UpdateOrderVo> createOrder(@RequestBody @Valid OrderCreateByUpdateReportDto dto, BindingResult result) {
         OrderItemDto orderItem = new OrderItemDto(dto.getProductId(),dto.getSkuId(),dto.getNumber());
         Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), List.of(orderItem), dto.getRemark(),dto.getDiscountId());

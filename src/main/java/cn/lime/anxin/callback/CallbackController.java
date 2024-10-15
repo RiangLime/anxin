@@ -53,16 +53,20 @@ public class CallbackController {
     @Scheduled(fixedRate = 1000)
     @Transactional
     public void scanPayingOrder() {
-        List<Long> payingIds = orderService.lambdaQuery().eq(Order::getOrderStatus, OrderStatus.PAYING.getVal()).list().stream().map(Order::getOrderId).toList();
-        if (!CollectionUtils.isEmpty(payingIds)) {
-            log.info("[SCAN] payingOrders:{}", JSON.toJSONString(payingIds));
-            for (Long payingId : payingIds) {
-                Transaction transaction = jsApiPayService.queryOrderById(payingId);
+        List<String> payingOutTradeIds = orderService.lambdaQuery()
+                .eq(Order::getOrderStatus, OrderStatus.PAYING.getVal())
+                .list().stream().map(Order::getOutTradeNo).toList();
+        if (!CollectionUtils.isEmpty(payingOutTradeIds)) {
+            log.info("[SCAN] payingOrders:{}", JSON.toJSONString(payingOutTradeIds));
+            for (String outTradeNo : payingOutTradeIds) {
+                Transaction transaction = jsApiPayService.queryOrderByOutTradeNo(outTradeNo);
                 log.info("[SCAN] transaction:{}", JSON.toJSONString(transaction));
                 wxPayService.dealTransaction(transaction);
             }
         }
-        List<Long> refundIds = orderService.lambdaQuery().eq(Order::getRefundStatus, RefundStatus.PROCESSING.getVal()).list().stream().map(Order::getRefundId).toList();
+        List<Long> refundIds = orderService.lambdaQuery()
+                .eq(Order::getRefundStatus, RefundStatus.PROCESSING.getVal())
+                .list().stream().map(Order::getRefundId).toList();
         if (!CollectionUtils.isEmpty(refundIds)) {
             log.info("[SCAN] refundingRefundIds:{}", JSON.toJSONString(refundIds));
             for (Long refundId : refundIds) {

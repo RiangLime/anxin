@@ -34,11 +34,12 @@ public class AdvertisementServiceImpl extends ServiceImpl<AdvertisementMapper, A
 
     @Override
     @Transactional
-    public void addAd(String title, String picture, List<AdStructureDto> adStructures) {
+    public void addAd(String title, Integer type, String picture, List<AdStructureDto> adStructures) {
 
         // 广告
         Advertisement ad = new Advertisement();
         ad.setTitle(title);
+        ad.setType(type);
         ad.setPicture(picture);
         ThrowUtils.throwIf(!save(ad), ErrorCode.INSERT_ERROR,"保存广告信息失败");
         // 广告结构
