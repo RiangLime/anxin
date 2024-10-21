@@ -148,12 +148,16 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
         wrapper.set(Detectorder::getDetectState, DetectOrderState.FINISH.getVal());
         if (StringUtils.isNotEmpty(title)) wrapper.set(Detectorder::getReportTitle, title);
         if (StringUtils.isNotEmpty(name)) wrapper.set(Detectorder::getReportName, name);
-        if (ObjectUtils.isNotEmpty(isNormal)) wrapper.set(Detectorder::getReportTitle, isNormal);
-        if (!CollectionUtils.isEmpty(reportUrls)) wrapper.set(Detectorder::getReportTitle, JSON.toJSONString(reportUrls));
-        if (!CollectionUtils.isEmpty(contactorUrls)) wrapper.set(Detectorder::getReportTitle, JSON.toJSONString(contactorUrls));
-        if (ObjectUtils.isNotEmpty(canUpdate)) wrapper.set(Detectorder::getReportTitle, canUpdate);
-        if (ObjectUtils.isNotEmpty(proId)) wrapper.set(Detectorder::getReportTitle, proId);
-        if (ObjectUtils.isNotEmpty(skuId)) wrapper.set(Detectorder::getReportTitle, skuId);
+        if (ObjectUtils.isNotEmpty(isNormal)) wrapper.set(Detectorder::getReportIsNormal, isNormal);
+        if (!CollectionUtils.isEmpty(reportUrls)) {
+            Instant now = Instant.now();
+            wrapper.set(Detectorder::getReportUrl, JSON.toJSONString(reportUrls));
+            wrapper.set(Detectorder::getReportTime,System.currentTimeMillis()/1000);
+        }
+        if (!CollectionUtils.isEmpty(contactorUrls)) wrapper.set(Detectorder::getContactorUrl, JSON.toJSONString(contactorUrls));
+        if (ObjectUtils.isNotEmpty(canUpdate)) wrapper.set(Detectorder::getCanReportUpdate, canUpdate);
+        if (ObjectUtils.isNotEmpty(proId)) wrapper.set(Detectorder::getUpdateProductId, proId);
+        if (ObjectUtils.isNotEmpty(skuId)) wrapper.set(Detectorder::getUpdateSkuId, skuId);
         ThrowUtils.throwIf(!update(wrapper), ErrorCode.UPDATE_ERROR, "管理员上传报告失败");
     }
 
