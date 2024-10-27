@@ -20,5 +20,4 @@ public class AnXinParams {
 
     @Value("${anxin.statistic-days:14}")
     private Integer statisticDays;
-
 }

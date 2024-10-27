@@ -5,6 +5,7 @@ import cn.lime.anxin.model.vo.DetectOrderDetailVo;
 import cn.lime.anxin.model.vo.DetectOrderPageVo;
 import cn.lime.anxin.model.vo.QrCodeVo;
 import cn.lime.core.common.PageResult;
+import cn.lime.mall.model.entity.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -38,6 +39,13 @@ public interface DetectorderService extends IService<Detectorder> {
                                                    Integer current, Integer pageSize);
 
     DetectOrderDetailVo getDetectOrderDetail(Long id);
+
+    /**
+     * 虚拟商品在用户付款后自动发货
+     * @param order
+     */
+    void autoSendQrCode(Order order);
+    void autoSendQrCode(Long orderId,String qrCode);
 
     List<Long> getUpdateWaitingSendOrderIds();
 }

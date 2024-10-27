@@ -79,4 +79,13 @@ public class DetectOrderAdminController {
     public BaseResponse<DetectOrderDetailVo> detail(@RequestBody @Valid CodeIdDto dto, BindingResult result) {
         return ResultUtils.success(service.getDetectOrderDetail(dto.getId()));
     }
+
+    @PostMapping("/sendQrcodeOnline")
+    @Operation(summary = "管理员线上推送二维码信息给用户")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> sendQrcodeToUser(@RequestBody @Valid SendQrcodeOnlineDto dto, BindingResult result){
+        service.autoSendQrCode(dto.getOrderId(),dto.getQrCode());
+        return ResultUtils.success(null);
+    }
 }

@@ -12,7 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,21 +50,28 @@ public class OrderSuccessPaidNoticeConsumer {
 
     private void dealOrderId(String orderIdStr) throws Exception{
         Long orderId = Long.parseLong(orderIdStr);
-        Optional<Detectorder> detectorderOpt = detectorderService
-                .lambdaQuery().eq(Detectorder::getOrderId,orderId).oneOpt();
-        if (detectorderOpt.isPresent()){
-            Detectorder detectorder = detectorderOpt.get();
-            // 是升级报告的订单且处于付款未完成状态
-            if (detectorder.getIsUpdated().equals(YesNoEnum.YES.getVal())
-                    && detectorder.getDetectState().equals(DetectOrderState.UPDATE_WAIT_PAID.getVal())){
-                boolean res = detectorderService.lambdaUpdate()
-                        .eq(Detectorder::getId,detectorder.getId())
-                        .set(Detectorder::getDetectState,DetectOrderState.DETECTING.getVal())
-                        .update();
-                if (!res){
-                    throw new Exception("消费者任务更新升级报告订单状态异常,id:"+orderIdStr);
+        List<Detectorder> detectorderList = detectorderService
+                .lambdaQuery().eq(Detectorder::getOrderId,orderId).list();
+        if (!CollectionUtils.isEmpty(detectorderList)){
+            for (Detectorder detectorder : detectorderList) {
+                // 是升级报告的订单且处于付款未完成状态
+                if (detectorder.getIsUpdated().equals(YesNoEnum.YES.getVal())
+                        && detectorder.getDetectState().equals(DetectOrderState.UPDATE_WAIT_PAID.getVal())){
+                    boolean res = detectorderService.lambdaUpdate()
+                            .eq(Detectorder::getId,detectorder.getId())
+                            .set(Detectorder::getDetectState,DetectOrderState.DETECTING.getVal())
+                            .update();
+                    if (!res){
+                        throw new Exception("消费者任务更新升级报告订单状态异常,id:"+orderIdStr);
+                    }
                 }
             }
         }
+//        Optional<Detectorder> detectorderOpt = detectorderService
+//                .lambdaQuery().eq(Detectorder::getOrderId,orderId).oneOpt();
+//        if (detectorderOpt.isPresent()){
+//            Detectorder detectorder = detectorderOpt.get();
+//
+//        }
     }
 }

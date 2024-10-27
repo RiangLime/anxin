@@ -171,6 +171,16 @@ ALTER TABLE Distribute_Withdraw
     ADD CONSTRAINT fk_dis_withdraw_user_id
         FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
 
+create table Qrcode_Auto_Send_Log
+(
+    id          bigint primary key comment 'ID',
+    order_id    bigint       not null comment '订单ID',
+    qr_code     varchar(64)  not null comment '生成的二维码',
+    third_tag   varchar(100) null comment '用户第三方ID',
+    is_success  tinyint   default 0 comment '微信发送是否成功',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+) comment '虚拟商品自动发送服务消息日志表' collate = utf8mb4_unicode_ci;
+
 
 
 -- 初始化数据
@@ -200,9 +210,14 @@ INSERT INTO anxin.Product
 VALUES (1, 'DO NOT EDIT', '自选定制 - 请勿修改',
         '[{"content":"http://47.116.166.113/uploads/WechatIMG864.jpg","order":0,"link":"","linkName":""}]', 1, 1, 1);
 
-INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814400970133504, 0, '热门商品');
-INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814448843919360, 0, '智慧自检');
-INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814476299833344, 0, '营养定制');
-INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814507836805120, 0, '健康服务');
-INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)VALUES(1033814535284330496, 0, '维尔生活');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814400970133504, 0, '热门商品');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814448843919360, 0, '智慧自检');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814476299833344, 0, '营养定制');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814507836805120, 0, '健康服务');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814535284330496, 0, '维尔生活');
 

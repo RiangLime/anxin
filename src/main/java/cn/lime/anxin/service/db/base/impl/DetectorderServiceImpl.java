@@ -5,15 +5,29 @@ import cn.lime.anxin.constants.DetectOrderState;
 import cn.lime.anxin.model.vo.DetectOrderDetailVo;
 import cn.lime.anxin.model.vo.DetectOrderPageVo;
 import cn.lime.anxin.model.vo.QrCodeVo;
+import cn.lime.anxin.service.db.base.QrcodeAutoSendLogService;
 import cn.lime.anxin.utils.DetectOrderCodeGenerator;
 import cn.lime.core.common.*;
+import cn.lime.core.config.CoreParams;
 import cn.lime.core.constant.AuthLevel;
+import cn.lime.core.constant.ThirdAuthorizationType;
 import cn.lime.core.constant.YesNoEnum;
+import cn.lime.core.module.entity.Userthirdauthorization;
+import cn.lime.core.service.db.UserthirdauthorizationService;
+import cn.lime.core.service.wx.auth.WxMpOuterService;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.threadlocal.ReqThreadLocal;
+import cn.lime.mall.model.entity.Order;
+import cn.lime.mall.model.entity.Product;
+import cn.lime.mall.model.entity.Sku;
 import cn.lime.mall.model.vo.OrderDetailVo;
+import cn.lime.mall.model.vo.OrderProductSkuVo;
+import cn.lime.mall.service.db.OrderItemService;
 import cn.lime.mall.service.db.OrderService;
+import cn.lime.mall.service.db.ProductService;
+import cn.lime.mall.service.db.SkuService;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,6 +35,7 @@ import cn.lime.anxin.model.entity.Detectorder;
 import cn.lime.anxin.service.db.base.DetectorderService;
 import cn.lime.anxin.mapper.DetectorderMapper;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -40,6 +55,7 @@ import java.util.Optional;
  * @createDate 2024-08-20 15:37:08
  */
 @Service
+@Slf4j
 public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detectorder>
         implements DetectorderService {
     @Resource
@@ -48,6 +64,20 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     private AnXinParams anXinParams;
     @Resource
     private OrderService orderService;
+    @Resource
+    private CoreParams coreParams;
+    @Resource
+    private OrderItemService orderItemService;
+    @Resource
+    private ProductService productService;
+    @Resource
+    private SkuService skuService;
+    @Resource
+    private UserthirdauthorizationService userthirdauthorizationService;
+    @Resource
+    private QrcodeAutoSendLogService qrcodeAutoSendLogService;
+    @Resource
+    private WxMpOuterService wxMpOuterService;
 
     public Detectorder getByCode(String code) {
         Optional<Detectorder> detectorder = lambdaQuery().eq(Detectorder::getCode, code).oneOpt();
@@ -205,6 +235,84 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
                 .set(Detectorder::getReturnDeliverUserAddress, returnDeliverUserAddress)
                 .set(Detectorder::getReturnDeliverUserTime, returnDeliverVisitTime)
                 .update();
+    }
+
+    @Override
+    public void autoSendQrCode(Order order) {
+        List<OrderProductSkuVo> itemsByOrderId = orderItemService.getItemsByOrderId(order.getOrderId());
+        Userthirdauthorization userThirdAuthorization = userthirdauthorizationService.lambdaQuery()
+                .eq(Userthirdauthorization::getPersonnelId, order.getUserId())
+                .eq(Userthirdauthorization::getThirdType, ThirdAuthorizationType.Wechat.getVal())
+                .eq(Userthirdauthorization::getAppPlatform, 1)
+                .one();
+
+        for (OrderProductSkuVo orderProductSkuVo : itemsByOrderId) {
+            Product product = productService.getById(orderProductSkuVo.getProductId());
+            Sku sku = skuService.getById(orderProductSkuVo.getSkuId());
+            // 自动发货类商品
+            if (ObjectUtils.isNotEmpty(product) && ObjectUtils.isNotEmpty(sku)
+                    && product.getProductType1().equals("AUTO_SEND")){
+                // 创建二维码
+                QrCodeVo detectOrder = createDetectOrder(product.getProductId(), sku.getSkuId(), order.getOrderId());
+                // 发送推送留痕
+                qrcodeAutoSendLogService.addLog(order.getOrderId(),detectOrder.getCode(),userThirdAuthorization.getThirdFirstTag());
+                try {
+                    // 发送推送
+                    JSONObject param = new JSONObject();
+                    JSONObject productNameJsonObj = new JSONObject();
+                    productNameJsonObj.put("value",product.getProductName());
+                    JSONObject skuDesJsonObj = new JSONObject();
+                    skuDesJsonObj.put("value",sku.getSkuDescription());
+                    JSONObject codeJsonObj = new JSONObject();
+                    codeJsonObj.put("value",detectOrder.getCode());
+                    param.put("thing10",productNameJsonObj);
+                    param.put("thing6",skuDesJsonObj);
+                    param.put("character_string26",codeJsonObj);
+                    wxMpOuterService.sendMessageToUser(coreParams.getWxMpAppId(),coreParams.getWxMpSecretId(),
+                            coreParams.getWxMpSendMessageTemplateId(),coreParams.getWxMpSendMessagePage()+detectOrder.getCode(),
+                            userThirdAuthorization.getThirdFirstTag(),param);
+                    // 确认成功
+                    qrcodeAutoSendLogService.success(order.getOrderId(),detectOrder.getCode(),userThirdAuthorization.getThirdFirstTag());
+
+                }catch (Exception e){
+                    log.error("[AUTO_SEND] 自动发货异常, {}, {}",detectOrder.getCode(),e.getMessage());
+                }
+                // 电商订单状态切换
+                orderService.updateOrderStatusFromWaitingSendToWaitingReceive(order.getOrderId());
+            }
+        }
+    }
+
+    @Override
+    public void autoSendQrCode(Long orderId, String qrCode) {
+        Order order = orderService.getById(orderId);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(order),ErrorCode.NOT_FOUND_ERROR,"无法找到订单");
+        Userthirdauthorization userThirdAuthorization = userthirdauthorizationService.lambdaQuery()
+                .eq(Userthirdauthorization::getPersonnelId, order.getUserId())
+                .eq(Userthirdauthorization::getThirdType, ThirdAuthorizationType.Wechat.getVal())
+                .eq(Userthirdauthorization::getAppPlatform, 1)
+                .one();
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(userThirdAuthorization),ErrorCode.NOT_FOUND_ERROR,"无法找到用户openId信息");
+        Detectorder byCode = getByCode(qrCode);
+        Long productId = byCode.getProductId();
+        Long skuId = byCode.getSkuId();
+        Product product = productService.getById(productId);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(product),ErrorCode.NOT_FOUND_ERROR,"无法找到对应的产品");
+        Sku sku = skuService.getById(skuId);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(sku),ErrorCode.NOT_FOUND_ERROR,"无法找到对应的SKU");
+        // 发送推送
+        JSONObject param = new JSONObject();
+        // 商品名称
+        param.put("thing10",product.getProductName());
+        // sku名称
+        param.put("thing6",sku.getSkuDescription());
+        // 码
+        param.put("character_string26",qrCode);
+        wxMpOuterService.sendMessageToUser(coreParams.getWxMpAppId(),coreParams.getWxMpSecretId(),
+                coreParams.getWxMpSendMessageTemplateId(),coreParams.getWxMpSendMessagePage()+qrCode,
+                userThirdAuthorization.getThirdFirstTag(),param);
+        // 确认成功
+        qrcodeAutoSendLogService.success(order.getOrderId(),qrCode,userThirdAuthorization.getThirdFirstTag());
     }
 
     @Override

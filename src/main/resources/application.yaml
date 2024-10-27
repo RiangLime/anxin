@@ -61,6 +61,11 @@ core:
     mp:
       app-id: ${mp_app_id:wxc449a89ac5cc9210}
       secret-id: ${mp_secret_id:}
+  wx-auth:
+    mp:
+      send-message-template-id: ${send_message_template_id:DIevvAANm4WOiBI8iS3I8fsEMf0oGk6yP51JBqzG0Zg}
+      send-message-page: ${send_message_template_page:pages/report/bind1step/index?code=}
+      send-message-env: ${send_message_template_env:formal}
 mall:
   auto-receive-day: ${auto-receive-day:14}
   auto-finish-day: ${auto-finish-day:7}

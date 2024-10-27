@@ -13,9 +13,11 @@ import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.threadlocal.ReqThreadLocal;
 import cn.lime.mall.model.dto.order.OrderCreateDto;
 import cn.lime.mall.model.dto.order.OrderItemDto;
+import cn.lime.mall.model.dto.order.OrderPayDto;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.model.entity.OrderItem;
 import cn.lime.mall.model.vo.OrderDetailVo;
+import cn.lime.mall.model.vo.OrderPayVo;
 import cn.lime.mall.service.db.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,12 +53,26 @@ public class BizOrderController {
     @DtoCheck(checkBindResult = true)
     @Transactional
     public BaseResponse<UpdateOrderVo> createOrder(@RequestBody @Valid OrderCreateByUpdateReportDto dto, BindingResult result) {
-        OrderItemDto orderItem = new OrderItemDto(dto.getProductId(),dto.getSkuId(),dto.getNumber());
-        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), List.of(orderItem), dto.getRemark(),dto.getDiscountId());
+        OrderItemDto orderItem = new OrderItemDto(dto.getProductId(), dto.getSkuId(), dto.getNumber());
+        Order order = orderService.createOrder(ReqThreadLocal.getInfo().getUserId(), dto.getAddressId(), List.of(orderItem), dto.getRemark(), dto.getDiscountId());
         OrderDetailVo orderVo = orderService.getOrderDetail(order.getOrderId());
-        QrCodeVo qrCodeVo = detectorderService.copyFromDetectOrder(dto.getPreCode(),dto.getProductId(),dto.getSkuId(),orderVo.getOrderId());
+        QrCodeVo qrCodeVo = detectorderService.copyFromDetectOrder(dto.getPreCode(), dto.getProductId(), dto.getSkuId(), orderVo.getOrderId());
         // 创建一个新的检测订单
-        return ResultUtils.success(new UpdateOrderVo(orderVo,qrCodeVo));
+        return ResultUtils.success(new UpdateOrderVo(orderVo, qrCodeVo));
+    }
+
+    @PostMapping("/pay/biz")
+    @Operation(summary = "用户支付订单 结合业务使用")
+    @AuthCheck(needToken = true, needPlatform = true, authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<OrderPayVo> payOrder(@RequestBody @Valid OrderPayDto dto, BindingResult result) {
+        OrderPayVo vo = orderService.payOrder(dto);
+        Order order = orderService.getById(dto.getOrderId());
+        // 如果商品价格为0 则不需要调用支付
+        if (order.getRealOrderPrice() == 0) {
+            detectorderService.autoSendQrCode(order);
+        }
+        return ResultUtils.success(vo);
     }
 
 }
