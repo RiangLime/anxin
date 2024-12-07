@@ -60,7 +60,8 @@ public class OrderSuccessFinishConsumer {
         Order order = orderService.getById(orderId);
         Integer distributeAmount = 0;
         Integer allAmount = 0;
-        List<OrderItem> orderItems = orderItemService.lambdaQuery().eq(OrderItem::getOrderId, order).list();
+        List<OrderItem> orderItems = orderItemService.lambdaQuery()
+                .eq(OrderItem::getOrderId, order.getOrderId()).list();
         for (OrderItem orderItem : orderItems) {
             Long productId = orderItem.getProductId();
             Long skuId = orderItem.getSkuId();
@@ -69,6 +70,12 @@ public class OrderSuccessFinishConsumer {
             }
             allAmount += orderItem.getItemPrice();
         }
+        // 如果分销商品价格总计为0 则直接略过
+        if (distributeAmount == 0) {
+            log.info("[DISTRIBUTE] orderId:[{}] 不是分销订单", orderId);
+            return;
+        }
+        log.info("[DISTRIBUTE] orderId:[{}],allAmount:[{}],distributeAmount:[{}]", orderId, allAmount, distributeAmount);
         // 商品总价等于订单价格 即未使用优惠券
         if (allAmount.equals(order.getRealOrderPrice())) {
             distributeOrderService.orderCheckInDistributeSystem(Long.parseLong(orderIdStr), distributeAmount);

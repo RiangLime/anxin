@@ -7,7 +7,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Base64;
+import java.util.Date;
 
 /**
  * @ClassName: SingleTest
@@ -20,17 +22,8 @@ public class SingleTest {
     @Test
     @SneakyThrows
     public void test(){
-        AesUtils aesUtils = new AesUtils("1234123412341234","1234123412341234");
-        System.out.println(aesUtils.encrypt("admin888"));
-//        String a = DetectOrderCodeGenerator.generateUniqueCode();
-//        System.out.println(a);
-        String a = null;
-        String b = "";
-        System.out.println(StringUtils.isBlank(a));
-
-        System.out.println(StringUtils.isNoneEmpty(b));
-        System.out.println(b == null);
-        System.out.println(b.length());
+        Instant now = Instant.now();
+        System.out.println(Date.from(now));
     }
 
 }

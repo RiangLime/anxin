@@ -33,6 +33,9 @@ public class DistributeInviteRelation implements Serializable {
     @TableField(value = "inviter_id")
     private Long inviterId;
 
+    @TableField(value = "is_ban")
+    private Integer isFreeze;
+
     /**
      * 创建时间
      */

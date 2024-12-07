@@ -174,7 +174,7 @@
                 and do.bind_user_id is null
             </if>
         </if>
-        ORDER BY do.bind_time DESC
+        ORDER BY do.gmt_created DESC
     </select>
     <select id="detail" resultMap="detailVo">
         with pro_main_url as (SELECT pu.product_id,

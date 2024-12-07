@@ -21,6 +21,7 @@ public interface DetectorderService extends IService<Detectorder> {
     QrCodeVo copyFromDetectOrder(String oldCode, Long updateProductId, Long updateSkuId, Long updateOrderId);
 
     void bind(String code);
+    void bind(String code, Long userId);
 
     void confirmReadyToReturn(String code);
 

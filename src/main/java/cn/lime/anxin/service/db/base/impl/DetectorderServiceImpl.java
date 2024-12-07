@@ -126,12 +126,18 @@ public class DetectorderServiceImpl extends ServiceImpl<DetectorderMapper, Detec
     @Override
     @Transactional
     public void bind(String code) {
+        bind(code,ReqThreadLocal.getInfo().getUserId());
+    }
+
+    @Override
+    @Transactional
+    public void bind(String code,Long userId){
         Detectorder detectorder = getByCode(code);
         // 获取当前UTC时间
         Instant now = Instant.now();
         ThrowUtils.throwIf(ObjectUtils.isNotEmpty(detectorder.getBindUserId()), ErrorCode.PARAMS_ERROR, "该二维码已被绑定");
         ThrowUtils.throwIf(!lambdaUpdate().eq(Detectorder::getId, detectorder.getId())
-                .set(Detectorder::getBindUserId, ReqThreadLocal.getInfo().getUserId())
+                .set(Detectorder::getBindUserId, userId)
                 .set(Detectorder::getBindTime, Date.from(now))
                 .update(), ErrorCode.UPDATE_ERROR, "二维码绑定用户失败");
     }

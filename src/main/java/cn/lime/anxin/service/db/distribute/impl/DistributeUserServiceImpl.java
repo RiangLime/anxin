@@ -1,16 +1,16 @@
 package cn.lime.anxin.service.db.distribute.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.lime.anxin.model.entity.DistributeApplication;
 import cn.lime.anxin.model.entity.DistributeInviteRelation;
 import cn.lime.anxin.model.entity.DistributeOrderLog;
-import cn.lime.anxin.model.vo.distribute.DistributeRelatorVo;
-import cn.lime.anxin.model.vo.distribute.DistributeSummaryVo;
-import cn.lime.anxin.model.vo.distribute.LevelDistributorInfo;
-import cn.lime.anxin.model.vo.distribute.UserDistributeOrderLogVo;
+import cn.lime.anxin.model.vo.distribute.*;
+import cn.lime.anxin.service.db.distribute.DistributeApplicationService;
 import cn.lime.anxin.service.db.distribute.DistributeInviteRelationService;
 import cn.lime.anxin.service.db.distribute.DistributeOrderLogService;
 import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.PageResult;
+import cn.lime.core.common.PageUtils;
 import cn.lime.core.common.ThrowUtils;
 import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.service.db.UserService;
@@ -30,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author riang
@@ -41,6 +42,8 @@ public class DistributeUserServiceImpl extends ServiceImpl<DistributeUserMapper,
         implements DistributeUserService {
     @Resource
     private DistributeInviteRelationService relationService;
+    @Resource
+    private DistributeApplicationService applicationService;
     @Resource
     private DistributeOrderLogService logService;
     @Resource
@@ -150,6 +153,27 @@ public class DistributeUserServiceImpl extends ServiceImpl<DistributeUserMapper,
         info.setUserVo(userService.detail(userId));
         val distributeUser = lambdaQuery().eq(DistributeUser::getUserId, userId).oneOpt();
         info.setIsDistributor(distributeUser.isEmpty() ? YesNoEnum.NO.getVal() : YesNoEnum.YES.getVal());
+        if (distributeUser.isPresent()){
+            info.setDistributorLevel(distributeUser.get().getLevelId());
+            info.setAssetsRemain(distributeUser.get().getAssetsRemain());
+            info.setAssetsGet(distributeUser.get().getAssetsGet());
+            info.setIsDistributorFreeze(distributeUser.get().getIsFreeze());
+            Optional<DistributeApplication> distributeApplication = applicationService.lambdaQuery()
+                    .eq(DistributeApplication::getUserId, info.getUserId()).oneOpt();
+            if (distributeApplication.isPresent()){
+                info.setRealName(distributeApplication.get().getRealName());
+                info.setPhone(distributeApplication.get().getPhone());
+                info.setRegion(distributeApplication.get().getRegion());
+                info.setReason(distributeApplication.get().getReason());
+                info.setDistributorApproveTime(distributeApplication.get().getApproveTime());
+            }
+
+
+        }
+        // 是否被冻结
+        Optional<DistributeInviteRelation> relation1 = relationService.lambdaQuery().eq(DistributeInviteRelation::getUserId, userId).oneOpt();
+        relation1.ifPresent(distributeInviteRelation -> info.setIsUpstreamRelationFreeze(distributeInviteRelation.getIsFreeze()));
+
         // 直接下级
         List<DistributeInviteRelation> relations = relationService.lambdaQuery()
                 .eq(DistributeInviteRelation::getInviterId, userId).list();
@@ -181,6 +205,39 @@ public class DistributeUserServiceImpl extends ServiceImpl<DistributeUserMapper,
             relationService.inviteeRegister(userId, inviterId);
         }
         updateDistributorLevel(userId, distributeUser.get().getLevelId() + 1);
+    }
+
+    @Override
+    public void freezeDistributor(Long userId, Integer state) {
+        Optional<DistributeUser> distributeUser = lambdaQuery().eq(DistributeUser::getUserId, userId).oneOpt();
+        ThrowUtils.throwIf(distributeUser.isEmpty(),ErrorCode.NOT_FOUND_ERROR,"该用户不是分销商");
+        ThrowUtils.throwIf(!lambdaUpdate().eq(DistributeUser::getUserId,userId)
+                        .set(DistributeUser::getIsFreeze,state).update(), ErrorCode.UPDATE_ERROR,"更新分销商冻结状态异常");
+    }
+
+    @Override
+    public void freezeDistributorRelation(Long userId, Integer state) {
+        Optional<DistributeInviteRelation> relation = relationService.lambdaQuery().eq(DistributeInviteRelation::getUserId, userId).oneOpt();
+        ThrowUtils.throwIf(relation.isEmpty(),ErrorCode.NOT_FOUND_ERROR,"该用户没有上级用户");
+        ThrowUtils.throwIf(!relationService.lambdaUpdate().eq(DistributeInviteRelation::getUserId,userId)
+                .set(DistributeInviteRelation::getIsFreeze,state).update(),
+                ErrorCode.UPDATE_ERROR,"更新分销用户关联信息冻结状态异常");
+    }
+
+    @Override
+    public PageResult<UserRelateDistributeOrderVo> getRelatedDistributeOrders(Long userId,Integer current, Integer pageSize) {
+        Page<DistributeOrderLog> page = PageUtils.build(DistributeOrderLog.class,current,pageSize,null,null);
+        Page<DistributeOrderLog> pageResult = logService.lambdaQuery().eq(DistributeOrderLog::getUserId, userId).page(page);
+        List<DistributeOrderLog> records = pageResult.getRecords();
+        if (!CollectionUtils.isEmpty(records)) {
+            List<UserRelateDistributeOrderVo> vos = pageResult.getRecords().stream().map(UserRelateDistributeOrderVo::fromLogBean).toList();
+            for (UserRelateDistributeOrderVo vo : vos) {
+                vo.setOrderDetailVo(orderService.getOrderDetail(vo.getOrderId()));
+            }
+            return new PageResult<>(pageResult,vos);
+        }else {
+            return new PageResult<>(pageResult,Collections.emptyList());
+        }
     }
 }
 

@@ -3,6 +3,8 @@ package cn.lime.anxin.service.db.distribute;
 import cn.lime.anxin.model.entity.DistributeUser;
 import cn.lime.anxin.model.vo.distribute.DistributeSummaryVo;
 import cn.lime.anxin.model.vo.distribute.LevelDistributorInfo;
+import cn.lime.anxin.model.vo.distribute.UserRelateDistributeOrderVo;
+import cn.lime.core.common.PageResult;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -19,4 +21,9 @@ public interface DistributeUserService extends IService<DistributeUser> {
     DistributeSummaryVo getUserInfo(Long userId, Integer current, Integer pageSize);
     List<LevelDistributorInfo> getAllDistributorInfo();
     void updateDistributorUpstream(Long userId,Long inviterId);
+
+    void freezeDistributor(Long userId,Integer state);
+    void freezeDistributorRelation(Long userId,Integer state);
+
+    PageResult<UserRelateDistributeOrderVo> getRelatedDistributeOrders(Long userId, Integer current, Integer pageSize);
 }

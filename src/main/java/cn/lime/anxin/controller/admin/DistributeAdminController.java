@@ -71,6 +71,19 @@ public class DistributeAdminController {
         return ResultUtils.success(distributeUserService.getAllDistributorInfo());
     }
 
+    @PostMapping("/distributor/updatestate")
+    @Operation(summary = "管理员更新分销系统内某用户是否被冻结")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<Void> banDistributor(@Valid @RequestBody DistributorStateUpdateDto dto, BindingResult result){
+        if (dto.getType()==1){
+            distributeUserService.freezeDistributor(dto.getUserId(),dto.getIsFreeze());
+        }else {
+            distributeUserService.freezeDistributorRelation(dto.getUserId(),dto.getIsFreeze());
+        }
+        return ResultUtils.success(null);
+    }
+
     @PostMapping("/distributor/updateuserupstream")
     @Operation(summary = "管理员更新目标用户分销上级")
     @DtoCheck(checkBindResult = true)
@@ -78,6 +91,15 @@ public class DistributeAdminController {
     public BaseResponse<Void> updateUserUpstream(@Valid @RequestBody DistributorUpstreamUpdateDto dto, BindingResult result){
         distributeUserService.updateDistributorUpstream(dto.getUserId(),dto.getInviterId());
         return ResultUtils.success(null);
+    }
+
+    @PostMapping("/distributor/pagerelateorders")
+    @Operation(summary = "管理员查询某用户相关分销订单信息 分页")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<PageResult<UserRelateDistributeOrderVo>> pageDistributeProduct(@Valid @RequestBody UserRelateDistributeOrderDto dto, BindingResult result){
+        PageResult<UserRelateDistributeOrderVo> vo = distributeUserService.getRelatedDistributeOrders(dto.getUserId(),dto.getCurrent(),dto.getPageSize());
+        return ResultUtils.success(vo);
     }
 
     @PostMapping("/withdraw/review")
@@ -163,5 +185,7 @@ public class DistributeAdminController {
                 dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder());
         return ResultUtils.success(vo);
     }
+
+
 
 }

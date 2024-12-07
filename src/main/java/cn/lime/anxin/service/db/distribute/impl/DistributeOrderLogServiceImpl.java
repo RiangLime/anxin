@@ -58,7 +58,7 @@ public class DistributeOrderLogServiceImpl extends ServiceImpl<DistributeOrderLo
     @Override
     public Page<DistributeOrderLog> pages(Long userId, Integer current, Integer pageSize) {
         Page<DistributeOrderLog> page = PageUtils.build(DistributeOrderLog.class,current,pageSize,"gmt_created","ascend");
-        Page<DistributeOrderLog> pageRes = lambdaQuery().eq(DistributeOrderLog::getUserId,userId).page(page);
+        Page<DistributeOrderLog> pageRes = lambdaQuery().isNotNull(DistributeOrderLog::getOrderId).eq(DistributeOrderLog::getUserId,userId).page(page);
         return pageRes;
     }
 }

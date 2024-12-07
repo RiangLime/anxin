@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,28 @@ public class DetectOrderAdminController {
 
     @Resource
     private DetectorderService service;
+
+    @PostMapping("/agent/bind")
+    @Operation(summary = "管理员代操作 - 用户绑定")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> bindUser(@RequestBody @Valid BindAdminDto dto, BindingResult result) {
+        service.bind(dto.getCode(),dto.getUserId());
+        return ResultUtils.success(null);
+    }
+
+    @PostMapping("/agent/setreturninfo")
+    @Operation(summary = "管理员代操作 - 一键回寄")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    @Transactional
+    public BaseResponse<Void> userEasyReturn(@RequestBody @Valid UserSetReturnDeliverInfoDto dto, BindingResult result) {
+        service.userSetReturnDeliverInfo(dto.getCode(),dto.getReturnDeliverUserName(),dto.getReturnDeliverUserPosition(),
+                dto.getReturnDeliverUserAddress(),dto.getReturnDeliverUserPhone(),dto.getReturnDeliverUserAge(),
+                dto.getReturnDeliverVisitTime());
+        service.confirmReadyToReturn(dto.getCode());
+        return ResultUtils.success(null);
+    }
 
     @PostMapping("/setreturninfo")
     @Operation(summary = "管理设置回寄单号")

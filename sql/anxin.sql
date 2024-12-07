@@ -86,9 +86,10 @@ create table Distribute_Level
 create table Distribute_Invite_Relation
 (
     id          bigint primary key comment 'id',
-    user_id     bigint not null comment '用户ID',
-    inviter_id  bigint not null comment '上级ID',
-    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+    user_id     bigint  not null comment '用户ID',
+    inviter_id  bigint  not null comment '上级ID',
+    is_ban      tinyint not null default 0 comment '是否被禁用',
+    gmt_created timestamp        default CURRENT_TIMESTAMP comment '创建时间'
 ) comment '分销邀请新用户信息表' collate = utf8mb4_unicode_ci;;
 ALTER TABLE Distribute_Invite_Relation
     ADD CONSTRAINT fk_relation_user_id
@@ -117,11 +118,12 @@ ALTER TABLE Distribute_Application
 create table Distribute_User
 (
     user_id       bigint primary key comment '用户ID',
-    level_id      int not null comment '等级ID',
-    assets_get    int not null default 0 comment '已入账佣金',
-    assets_remain int not null default 0 comment '待入账佣金',
-    gmt_created   timestamp    default CURRENT_TIMESTAMP comment '创建时间',
-    gmt_modified  timestamp    default null on update CURRENT_TIMESTAMP comment '修改时间'
+    level_id      int     not null comment '等级ID',
+    assets_get    int     not null default 0 comment '已入账佣金',
+    assets_remain int     not null default 0 comment '待入账佣金',
+    is_ban        tinyint not null default 0 comment '是否临时被ban',
+    gmt_created   timestamp        default CURRENT_TIMESTAMP comment '创建时间',
+    gmt_modified  timestamp        default null on update CURRENT_TIMESTAMP comment '修改时间'
 ) comment '分销商表' collate = utf8mb4_unicode_ci;;
 ALTER TABLE Distribute_User
     ADD CONSTRAINT fk_dis_user_user_id
