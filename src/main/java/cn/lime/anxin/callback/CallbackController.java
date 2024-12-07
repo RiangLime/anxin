@@ -1,10 +1,15 @@
 package cn.lime.anxin.callback;
 
+import cn.lime.anxin.service.db.base.DetectorderService;
+import cn.lime.core.constant.YesNoEnum;
 import cn.lime.mall.constant.OrderStatus;
 import cn.lime.mall.constant.PayCallBackUrl;
 import cn.lime.mall.constant.RefundStatus;
 import cn.lime.mall.model.entity.Order;
+import cn.lime.mall.model.vo.OrderProductSkuVo;
+import cn.lime.mall.service.db.OrderItemService;
 import cn.lime.mall.service.db.OrderService;
+import cn.lime.mall.service.db.ProductService;
 import cn.lime.mall.service.wx.payment.BaseWxPayServiceImpl;
 import cn.lime.mall.service.wx.payment.JsApiPayServiceImpl;
 import com.alibaba.fastjson.JSON;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -33,6 +39,9 @@ public class CallbackController {
     private JsApiPayServiceImpl jsApiPayService;
     @Resource
     private OrderService orderService;
+    @Resource
+    private DetectorderService detectorderService;
+
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
 
@@ -53,16 +62,24 @@ public class CallbackController {
     @Scheduled(fixedRate = 1000)
     @Transactional
     public void scanPayingOrder() {
-        List<Long> payingIds = orderService.lambdaQuery().eq(Order::getOrderStatus, OrderStatus.PAYING.getVal()).list().stream().map(Order::getOrderId).toList();
-        if (!CollectionUtils.isEmpty(payingIds)) {
-            log.info("[SCAN] payingOrders:{}", JSON.toJSONString(payingIds));
-            for (Long payingId : payingIds) {
-                Transaction transaction = jsApiPayService.queryOrderById(payingId);
+        List<Order> payingOrders = orderService.lambdaQuery()
+                .eq(Order::getOrderStatus, OrderStatus.PAYING.getVal())
+                .list();
+        if (!CollectionUtils.isEmpty(payingOrders)) {
+            log.info("[SCAN] payingOrders:{}", JSON.toJSONString(payingOrders.stream().map(Order::getOutTradeNo).collect(Collectors.toSet())));
+            for (Order order : payingOrders) {
+                Transaction transaction = jsApiPayService.queryOrderByOutTradeNo(order.getOutTradeNo());
                 log.info("[SCAN] transaction:{}", JSON.toJSONString(transaction));
                 wxPayService.dealTransaction(transaction);
+                if (transaction.getTradeState().equals(Transaction.TradeStateEnum.SUCCESS)) {
+                    // 虚拟商品自动发送
+                    detectorderService.autoSendQrCode(order);
+                }
             }
         }
-        List<Long> refundIds = orderService.lambdaQuery().eq(Order::getRefundStatus, RefundStatus.PROCESSING.getVal()).list().stream().map(Order::getRefundId).toList();
+        List<Long> refundIds = orderService.lambdaQuery()
+                .eq(Order::getRefundStatus, RefundStatus.PROCESSING.getVal())
+                .list().stream().map(Order::getRefundId).toList();
         if (!CollectionUtils.isEmpty(refundIds)) {
             log.info("[SCAN] refundingRefundIds:{}", JSON.toJSONString(refundIds));
             for (Long refundId : refundIds) {
@@ -75,7 +92,6 @@ public class CallbackController {
                 }
             }
         }
-
     }
 
 

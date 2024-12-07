@@ -1,12 +1,8 @@
 package cn.lime.anxin.controller.admin;
 
 import cn.lime.anxin.model.dto.distribute.*;
-import cn.lime.anxin.model.vo.distribute.ApplicationPageVo;
-import cn.lime.anxin.model.vo.distribute.DistributeLevelVo;
-import cn.lime.anxin.model.vo.distribute.ProductWithDistributeTagPageVo;
-import cn.lime.anxin.service.db.distribute.DistributeApplicationService;
-import cn.lime.anxin.service.db.distribute.DistributeLevelService;
-import cn.lime.anxin.service.db.distribute.DistributeProductService;
+import cn.lime.anxin.model.vo.distribute.*;
+import cn.lime.anxin.service.db.distribute.*;
 import cn.lime.core.annotation.AuthCheck;
 import cn.lime.core.annotation.DtoCheck;
 import cn.lime.core.annotation.RequestLog;
@@ -39,9 +35,13 @@ public class DistributeAdminController {
     @Resource
     private DistributeApplicationService applicationService;
     @Resource
+    private DistributeUserService distributeUserService;
+    @Resource
     private DistributeLevelService levelService;
     @Resource
     private DistributeProductService productService;
+    @Resource
+    private DistributeWithdrawService withdrawService;
 
 
     @PostMapping("/distributor/review")
@@ -60,6 +60,65 @@ public class DistributeAdminController {
     public BaseResponse<PageResult<ApplicationPageVo>> listDistributorApplyPage(@Valid @RequestBody DistributeApplyAdminPageDto dto, BindingResult result){
         PageResult<ApplicationPageVo> vo = applicationService.pageApplications(dto.getUserId(), dto.getRegion(),dto.getApplyTimeStart(),
                 dto.getApplyTimeEnd(), dto.getState(),dto.getQueryField(), dto.getCurrent(),dto.getPageSize());
+        return ResultUtils.success(vo);
+    }
+
+    @PostMapping("/distributor/all")
+    @Operation(summary = "管理员查看所有经销商信息")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<List<LevelDistributorInfo>> getAllDistributors(@Valid @RequestBody EmptyDto dto, BindingResult result){
+        return ResultUtils.success(distributeUserService.getAllDistributorInfo());
+    }
+
+    @PostMapping("/distributor/updatestate")
+    @Operation(summary = "管理员更新分销系统内某用户是否被冻结")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<Void> banDistributor(@Valid @RequestBody DistributorStateUpdateDto dto, BindingResult result){
+        if (dto.getType()==1){
+            distributeUserService.freezeDistributor(dto.getUserId(),dto.getIsFreeze());
+        }else {
+            distributeUserService.freezeDistributorRelation(dto.getUserId(),dto.getIsFreeze());
+        }
+        return ResultUtils.success(null);
+    }
+
+    @PostMapping("/distributor/updateuserupstream")
+    @Operation(summary = "管理员更新目标用户分销上级")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<Void> updateUserUpstream(@Valid @RequestBody DistributorUpstreamUpdateDto dto, BindingResult result){
+        distributeUserService.updateDistributorUpstream(dto.getUserId(),dto.getInviterId());
+        return ResultUtils.success(null);
+    }
+
+    @PostMapping("/distributor/pagerelateorders")
+    @Operation(summary = "管理员查询某用户相关分销订单信息 分页")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<PageResult<UserRelateDistributeOrderVo>> pageDistributeProduct(@Valid @RequestBody UserRelateDistributeOrderDto dto, BindingResult result){
+        PageResult<UserRelateDistributeOrderVo> vo = distributeUserService.getRelatedDistributeOrders(dto.getUserId(),dto.getCurrent(),dto.getPageSize());
+        return ResultUtils.success(vo);
+    }
+
+    @PostMapping("/withdraw/review")
+    @Operation(summary = "管理员审批经销商提现申请")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true, authLevel = AuthLevel.ADMIN)
+    public BaseResponse<Void> applyToBeDistributor(@Valid @RequestBody DistributeWithdrawReviewDto dto, BindingResult result) {
+        withdrawService.reviewWithdraw(dto.getApplyId(),dto.getIsApprove());
+        return ResultUtils.success(null);
+    }
+
+    @PostMapping("/withdraw/apply/page")
+    @Operation(summary = "管理员查看经销商提现申请信息")
+    @DtoCheck(checkBindResult = true)
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    public BaseResponse<PageResult<DistributeWithdrawVo>> listDistributorApplyPage(@Valid @RequestBody DistributeWithdrawPageDto dto, BindingResult result){
+        PageResult<DistributeWithdrawVo> vo = withdrawService.pageWithDraw(null,dto.getState(),dto.getPriceStart(),
+                dto.getPriceEnd(),dto.getCreateTimeStart(),dto.getCreateTimeEnd(),dto.getCurrent(),dto.getPageSize(),
+                dto.getSortField(),dto.getSortOrder());
         return ResultUtils.success(vo);
     }
 
@@ -126,5 +185,7 @@ public class DistributeAdminController {
                 dto.getCurrent(),dto.getPageSize(),dto.getSortField(),dto.getSortOrder());
         return ResultUtils.success(vo);
     }
+
+
 
 }

@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface DistributeWithdrawService extends IService<DistributeWithdraw> {
     void applyWithdraw(Long userId, Integer price);
 
-    void reviewWithdraw(Long id, Boolean isApprove);
+    void reviewWithdraw(Long id, Integer isApprove);
 
     PageResult<DistributeWithdrawVo> pageWithDraw(Long userId, Integer state, Integer priceStart, Integer priceEnd,
                                                   Long createTimeStart, Long createTimeEnd,

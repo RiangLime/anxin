@@ -16,7 +16,7 @@ import java.io.Serializable;
 public class AdListVo implements Serializable {
     @Schema(description = "广告ID")
     private Integer adId;
-    @Schema(description = "类型 1广告")
+    @Schema(description = "类型 1广告 2评论")
     private Integer adType;
     @Schema(description = "广告标题")
     private String adTitle;

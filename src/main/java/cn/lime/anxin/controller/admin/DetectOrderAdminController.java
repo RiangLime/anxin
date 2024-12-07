@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,28 @@ public class DetectOrderAdminController {
 
     @Resource
     private DetectorderService service;
+
+    @PostMapping("/agent/bind")
+    @Operation(summary = "管理员代操作 - 用户绑定")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> bindUser(@RequestBody @Valid BindAdminDto dto, BindingResult result) {
+        service.bind(dto.getCode(),dto.getUserId());
+        return ResultUtils.success(null);
+    }
+
+    @PostMapping("/agent/setreturninfo")
+    @Operation(summary = "管理员代操作 - 一键回寄")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    @Transactional
+    public BaseResponse<Void> userEasyReturn(@RequestBody @Valid UserSetReturnDeliverInfoDto dto, BindingResult result) {
+        service.userSetReturnDeliverInfo(dto.getCode(),dto.getReturnDeliverUserName(),dto.getReturnDeliverUserPosition(),
+                dto.getReturnDeliverUserAddress(),dto.getReturnDeliverUserPhone(),dto.getReturnDeliverUserAge(),
+                dto.getReturnDeliverVisitTime());
+        service.confirmReadyToReturn(dto.getCode());
+        return ResultUtils.success(null);
+    }
 
     @PostMapping("/setreturninfo")
     @Operation(summary = "管理设置回寄单号")
@@ -68,7 +91,8 @@ public class DetectOrderAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<DetectOrderPageVo>> page(@RequestBody @Valid DetectOrderPageAdminDto dto, BindingResult result) {
         return ResultUtils.success(service.pageDetectOrders(dto.getUserId(), dto.getUserName(), dto.getProductName(),
-                dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),dto.getCurrent(),dto.getPageSize()));
+                dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),dto.getIsBind(),
+                dto.getCurrent(),dto.getPageSize()));
     }
 
     @PostMapping("/detail")
@@ -77,5 +101,14 @@ public class DetectOrderAdminController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<DetectOrderDetailVo> detail(@RequestBody @Valid CodeIdDto dto, BindingResult result) {
         return ResultUtils.success(service.getDetectOrderDetail(dto.getId()));
+    }
+
+    @PostMapping("/sendQrcodeOnline")
+    @Operation(summary = "管理员线上推送二维码信息给用户")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.ADMIN)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<Void> sendQrcodeToUser(@RequestBody @Valid SendQrcodeOnlineDto dto, BindingResult result){
+        service.autoSendQrCode(dto.getOrderId(),dto.getQrCode());
+        return ResultUtils.success(null);
     }
 }

@@ -5,14 +5,25 @@
 <mapper namespace="cn.lime.anxin.mapper.DistributeInviteRelationMapper">
 
     <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.DistributeInviteRelation">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userId" column="user_id" jdbcType="BIGINT"/>
-            <result property="inviterId" column="inviter_id" jdbcType="BIGINT"/>
-            <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="inviterId" column="inviter_id" jdbcType="BIGINT"/>
+        <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="DistributeRelatorVo" type="cn.lime.anxin.model.vo.distribute.DistributeRelatorVo">
+        <id property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="nickname" column="name" jdbcType="VARCHAR"/>
+        <result property="level" column="level" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,inviter_id,
         gmt_created
     </sql>
+    <select id="queryDirectDownstream" resultMap="DistributeRelatorVo">
+        SELECT dir.user_id, u.name,#{currentLevel}+1 as level
+        FROM Distribute_Invite_Relation dir
+                 left join `User` u on u.user_id = dir.user_id
+        WHERE dir.inviter_id = #{inviterId}
+    </select>
 </mapper>

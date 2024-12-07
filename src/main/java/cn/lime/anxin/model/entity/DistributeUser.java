@@ -30,7 +30,8 @@ public class DistributeUser implements Serializable {
     private Integer assetsGet;
     @TableField(value = "assets_remain")
     private Integer assetsRemain;
-
+    @TableField(value = "is_ban")
+    private Integer isFreeze;
     /**
      * 创建时间
      */

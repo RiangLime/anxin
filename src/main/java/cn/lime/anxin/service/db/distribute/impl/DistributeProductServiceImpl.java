@@ -16,7 +16,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -65,7 +64,8 @@ public class DistributeProductServiceImpl extends ServiceImpl<DistributeProductM
 
     @Override
     public boolean isDistributeProduct(Long productId, Long skuId) {
-        if (lambdaQuery().eq(DistributeProduct::getProductId,productId).eq(DistributeProduct::getSkuId,skuId).exists()){
+        if (lambdaQuery().eq(DistributeProduct::getProductId,productId)
+                .eq(DistributeProduct::getSkuId,skuId).exists()){
             return true;
         }else {
             return lambdaQuery().eq(DistributeProduct::getProductId, productId).exists();

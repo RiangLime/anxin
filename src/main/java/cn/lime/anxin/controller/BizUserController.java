@@ -7,12 +7,18 @@ import cn.lime.core.annotation.DtoCheck;
 import cn.lime.core.annotation.RequestLog;
 import cn.lime.core.common.BaseResponse;
 import cn.lime.core.common.ResultUtils;
+import cn.lime.core.constant.AuthLevel;
+import cn.lime.core.module.dto.user.UserBindPhoneDto;
 import cn.lime.core.module.vo.LoginVo;
+import cn.lime.core.service.db.UserService;
 import cn.lime.core.service.login.UniLogService;
+import cn.lime.core.threadlocal.ReqThreadLocal;
+import cn.lime.mall.service.db.DiscountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +39,10 @@ public class BizUserController {
     private UniLogService uniLogService;
     @Resource
     private DistributeInviteRelationService distributeInviteRelationService;
+    @Resource
+    private UserService userService;
+    @Resource
+    private DiscountService discountService;
 
     @PostMapping("/easylogin/wx/invite")
     @Operation(summary = "一键登录 微信 分销商邀请")
@@ -44,6 +54,16 @@ public class BizUserController {
             distributeInviteRelationService.inviteeRegister(loginVo.getUserId(),request.getInviteUserId());
         }
         return ResultUtils.success(loginVo);
+    }
+
+    @PostMapping("/update/mobile/first/givediscount")
+    @Operation(summary = "用户首次绑定手机号 返回信息如果有值就是新登录信息")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    @Transactional
+    public BaseResponse<LoginVo> bindUserMobile(@Valid @RequestBody UserBindPhoneDto request, BindingResult result) {
+        discountService.giveUserDiscount(ReqThreadLocal.getInfo().getUserId());
+        return ResultUtils.success(userService.bindPhoneByPhoneCode(request.getPhoneCode()));
     }
 
 }

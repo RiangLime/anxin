@@ -69,7 +69,7 @@ public class DetectOrderController {
     @DtoCheck(checkBindResult = true)
     public BaseResponse<PageResult<DetectOrderPageVo>> page(@RequestBody @Valid DetectOrderPageUserDto dto, BindingResult result) {
         return ResultUtils.success(service.pageDetectOrders(ReqThreadLocal.getInfo().getUserId(),null,
-                dto.getProductName(), dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),
+                dto.getProductName(), dto.getCode(),dto.getState(),dto.getCanUpdate(),dto.getIsUpdated(),null,
                 dto.getCurrent(),dto.getPageSize()));
     }
 

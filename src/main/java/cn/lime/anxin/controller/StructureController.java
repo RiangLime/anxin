@@ -1,6 +1,7 @@
 package cn.lime.anxin.controller;
 
 import cn.lime.anxin.model.dto.structure.AdDetailDto;
+import cn.lime.anxin.model.dto.structure.GetShareQrCodeDto;
 import cn.lime.anxin.model.entity.Homepagestructure;
 import cn.lime.anxin.model.vo.AdDetailVo;
 import cn.lime.anxin.model.vo.AdListVo;
@@ -11,8 +12,11 @@ import cn.lime.core.annotation.DtoCheck;
 import cn.lime.core.annotation.RequestLog;
 import cn.lime.core.common.BaseResponse;
 import cn.lime.core.common.ResultUtils;
+import cn.lime.core.config.CoreParams;
 import cn.lime.core.constant.AuthLevel;
 import cn.lime.core.module.dto.EmptyDto;
+import cn.lime.core.service.wx.auth.WxMpOuterService;
+import cn.lime.core.threadlocal.ReqThreadLocal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -39,6 +43,10 @@ public class StructureController {
     private AdvertisementService adService;
     @Resource
     private HomepagestructureService homepageService;
+    @Resource
+    private WxMpOuterService wxMpOuterService;
+    @Resource
+    private CoreParams coreParams;
 
     @PostMapping("/ad/list")
     @Operation(summary = "查询所有推广广告")
@@ -64,5 +72,14 @@ public class StructureController {
         return ResultUtils.success(homepageService.getLatest());
     }
 
+    @PostMapping("/getshareqrcode")
+    @Operation(summary = "获取推广二维码")
+    @AuthCheck(needToken = true,authLevel = AuthLevel.USER)
+    @DtoCheck(checkBindResult = true)
+    public BaseResponse<String> getShareQrCode(@RequestBody @Valid GetShareQrCodeDto dto, BindingResult result) {
+        String base64Code = wxMpOuterService.getShareCode(coreParams.getWxMpAppId(),coreParams.getWxMpSecretId(),
+                dto.getWxPage(),"userId="+ ReqThreadLocal.getInfo().getUserId(),dto.getCheckPath(),dto.getWxEnv());
+        return ResultUtils.success(base64Code);
+    }
 
 }

@@ -1,5 +1,6 @@
 package cn.lime.anxin.model.vo;
 
+import cn.hutool.core.lang.Pair;
 import cn.lime.anxin.constants.DetectOrderState;
 import cn.lime.anxin.constants.DistributeWithdrawState;
 import cn.lime.anxin.model.entity.Detectorder;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.swing.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -39,4 +41,7 @@ public class PollingInfoVo implements Serializable {
     private List<String> distributorWithdrawApplyIdStrings;
     @Schema(description = "退款申请提示")
     private List<String> refundOrderIdStrings;
+
+    @Schema(description = "自动发货失败的订单ID以及该订单自动生成的二维码")
+    private List<Pair<Long,String>> autoSendFailOrderIdAndCodes;
 }

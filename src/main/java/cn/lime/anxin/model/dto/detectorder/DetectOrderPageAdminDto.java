@@ -36,4 +36,6 @@ public class DetectOrderPageAdminDto extends PageRequest implements Serializable
     private Integer canUpdate;
     @Schema(description = "是否为升级检测")
     private Integer isUpdated;
+    @Schema(description = "二维码是否已经绑定用户")
+    private Integer isBind;
 }

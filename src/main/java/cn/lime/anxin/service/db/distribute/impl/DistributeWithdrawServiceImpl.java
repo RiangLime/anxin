@@ -9,6 +9,7 @@ import cn.lime.core.common.ErrorCode;
 import cn.lime.core.common.PageResult;
 import cn.lime.core.common.PageUtils;
 import cn.lime.core.common.ThrowUtils;
+import cn.lime.core.constant.YesNoEnum;
 import cn.lime.core.snowflake.SnowFlakeGenerator;
 import cn.lime.core.utils.TimeStampUtils;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -40,7 +41,7 @@ public class DistributeWithdrawServiceImpl extends ServiceImpl<DistributeWithdra
     @Override
     public void applyWithdraw(Long userId, Integer price) {
         DistributeUser user = userService.getById(userId);
-        ThrowUtils.throwIf(!ObjectUtils.isEmpty(user), ErrorCode.NOT_FOUND_ERROR, "该用户不是分销商");
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(user), ErrorCode.NOT_FOUND_ERROR, "该用户不是分销商");
         ThrowUtils.throwIf(price > user.getAssetsRemain(), ErrorCode.PARAMS_ERROR, "该分销商可提现余额不足");
         DistributeWithdraw bean = new DistributeWithdraw();
         bean.setId(ids.nextId());
@@ -52,12 +53,12 @@ public class DistributeWithdrawServiceImpl extends ServiceImpl<DistributeWithdra
 
     @Override
     @Transactional
-    public void reviewWithdraw(Long id, Boolean isApprove) {
+    public void reviewWithdraw(Long id, Integer isApprove) {
         DistributeWithdraw withdraw = getById(id);
-        ThrowUtils.throwIf(!ObjectUtils.isEmpty(withdraw), ErrorCode.NOT_FOUND_ERROR);
+        ThrowUtils.throwIf(ObjectUtils.isEmpty(withdraw), ErrorCode.NOT_FOUND_ERROR);
         LambdaUpdateWrapper<DistributeWithdraw> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(DistributeWithdraw::getId, id);
-        if (isApprove) {
+        if (isApprove == YesNoEnum.YES.getVal()) {
             wrapper.set(DistributeWithdraw::getState, DistributeWithdrawState.APPROVE.getVal());
             userService.userWithdraw(withdraw.getUserId(), withdraw.getNumber());
         } else {

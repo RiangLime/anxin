@@ -21,6 +21,9 @@ public class Advertisement implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    @TableField(value = "type")
+    private Integer type;
+
     /**
      * 广告标题
      */

@@ -1,21 +1,27 @@
 package cn.lime.anxin.service.db.extend;
 
+import cn.hutool.core.lang.Pair;
 import cn.lime.anxin.constants.DetectOrderState;
 import cn.lime.anxin.constants.DistributeWithdrawState;
 import cn.lime.anxin.model.entity.Detectorder;
 import cn.lime.anxin.model.entity.DistributeApplication;
 import cn.lime.anxin.model.entity.DistributeWithdraw;
+import cn.lime.anxin.model.entity.QrcodeAutoSendLog;
 import cn.lime.anxin.model.vo.PollingInfoVo;
 import cn.lime.anxin.service.db.base.DetectorderService;
+import cn.lime.anxin.service.db.base.QrcodeAutoSendLogService;
 import cn.lime.anxin.service.db.distribute.DistributeApplicationService;
 import cn.lime.anxin.service.db.distribute.DistributeWithdrawService;
+import cn.lime.core.constant.YesNoEnum;
 import cn.lime.mall.constant.OrderStatus;
 import cn.lime.mall.constant.RefundStatus;
 import cn.lime.mall.model.entity.Order;
 import cn.lime.mall.service.db.OrderService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +45,8 @@ public class PollingService {
     // 申请提现提示
     @Resource
     private DistributeWithdrawService distributeWithdrawService;
+    @Resource
+    private QrcodeAutoSendLogService qrcodeAutoSendLogService;
 
     public PollingInfoVo pollingInfo() {
         // 待发货订单ID
@@ -81,8 +89,17 @@ public class PollingService {
                 .map(Order::getOrderId)
                 .map(String::valueOf)
                 .toList();
+        // 某个订单下的某个码发送失败了  补发
+        List<QrcodeAutoSendLog> qrcodeAutoSendLogs = qrcodeAutoSendLogService.lambdaQuery()
+                .eq(QrcodeAutoSendLog::getIsSuccess, YesNoEnum.NO.getVal()).list();
+        List<Pair<Long,String>> res = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(qrcodeAutoSendLogs)){
+            for (QrcodeAutoSendLog qrcodeAutoSendLog : qrcodeAutoSendLogs) {
+                res.add(new Pair<>(qrcodeAutoSendLog.getOrderId(),qrcodeAutoSendLog.getQrCode()));
+            }
+        }
         return new PollingInfoVo(orderIdStrings,detectOrderIdStrings,distributorApplyIdStrings,
-                distributorWithdrawApplyIdStrings,refundIdStrings);
+                distributorWithdrawApplyIdStrings,refundIdStrings,res);
     }
 
 }

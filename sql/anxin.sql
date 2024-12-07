@@ -25,6 +25,7 @@ create table DetectOrder
     report_url                   nvarchar(1024)         default '[]' comment '报告URL JSON List',
     contactor_url                nvarchar(1024)         default '[]' comment '医师联系方式 JSON List',
     can_report_update            tinyint                default 0 comment '报告是否可以进行升级 0不可 1可以',
+    has_updated                  tinyint                default 0 comment '该报告是否已经升级过',
     update_product_id            bigint        null comment '升级产品ID',
     update_sku_id                bigint        null comment '升级SKU ID',
     gmt_created                  timestamp              default CURRENT_TIMESTAMP comment '创建时间',
@@ -43,7 +44,7 @@ create table Advertisement
 (
     id          int           not null primary key auto_increment comment 'id',
     title       nvarchar(255) null comment '广告标题',
-    type        int       default 1 comment '1广告',
+    type        int       default 1 comment '1广告 2评论',
     picture     nvarchar(255) null comment '广告图片',
     gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
 ) comment '广告表 扩展为所有单页推广' collate = utf8mb4_unicode_ci;;
@@ -85,9 +86,10 @@ create table Distribute_Level
 create table Distribute_Invite_Relation
 (
     id          bigint primary key comment 'id',
-    user_id     bigint not null comment '用户ID',
-    inviter_id  bigint not null comment '上级ID',
-    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+    user_id     bigint  not null comment '用户ID',
+    inviter_id  bigint  not null comment '上级ID',
+    is_ban      tinyint not null default 0 comment '是否被禁用',
+    gmt_created timestamp        default CURRENT_TIMESTAMP comment '创建时间'
 ) comment '分销邀请新用户信息表' collate = utf8mb4_unicode_ci;;
 ALTER TABLE Distribute_Invite_Relation
     ADD CONSTRAINT fk_relation_user_id
@@ -116,11 +118,12 @@ ALTER TABLE Distribute_Application
 create table Distribute_User
 (
     user_id       bigint primary key comment '用户ID',
-    level_id      int not null comment '等级ID',
-    assets_get    int not null default 0 comment '已入账佣金',
-    assets_remain int not null default 0 comment '待入账佣金',
-    gmt_created   timestamp    default CURRENT_TIMESTAMP comment '创建时间',
-    gmt_modified  timestamp    default null on update CURRENT_TIMESTAMP comment '修改时间'
+    level_id      int     not null comment '等级ID',
+    assets_get    int     not null default 0 comment '已入账佣金',
+    assets_remain int     not null default 0 comment '待入账佣金',
+    is_ban        tinyint not null default 0 comment '是否临时被ban',
+    gmt_created   timestamp        default CURRENT_TIMESTAMP comment '创建时间',
+    gmt_modified  timestamp        default null on update CURRENT_TIMESTAMP comment '修改时间'
 ) comment '分销商表' collate = utf8mb4_unicode_ci;;
 ALTER TABLE Distribute_User
     ADD CONSTRAINT fk_dis_user_user_id
@@ -170,6 +173,16 @@ ALTER TABLE Distribute_Withdraw
     ADD CONSTRAINT fk_dis_withdraw_user_id
         FOREIGN KEY (user_id) REFERENCES User (user_id) on delete cascade;
 
+create table Qrcode_Auto_Send_Log
+(
+    id          bigint primary key comment 'ID',
+    order_id    bigint       not null comment '订单ID',
+    qr_code     varchar(64)  not null comment '生成的二维码',
+    third_tag   varchar(100) null comment '用户第三方ID',
+    is_success  tinyint   default 0 comment '微信发送是否成功',
+    gmt_created timestamp default CURRENT_TIMESTAMP comment '创建时间'
+) comment '虚拟商品自动发送服务消息日志表' collate = utf8mb4_unicode_ci;
+
 
 
 -- 初始化数据
@@ -198,4 +211,15 @@ INSERT INTO anxin.Product
 (product_id, product_code, product_name, product_description, product_state, visible, product_sort)
 VALUES (1, 'DO NOT EDIT', '自选定制 - 请勿修改',
         '[{"content":"http://47.116.166.113/uploads/WechatIMG864.jpg","order":0,"link":"","linkName":""}]', 1, 1, 1);
+
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814400970133504, 0, '热门商品');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814448843919360, 0, '智慧自检');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814476299833344, 0, '营养定制');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814507836805120, 0, '健康服务');
+INSERT INTO anxin.Product_Tag(tag_id, parent_tag_id, tag_name)
+VALUES (1033814535284330496, 0, '维尔生活');
 

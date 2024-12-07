@@ -60,6 +60,7 @@ public class DistributeLevelServiceImpl extends ServiceImpl<DistributeLevelMappe
     @Override
     public void updateLevel(@NotNull Integer level, String name, Integer rate1, Integer rate2, Integer rate3) {
         LambdaUpdateWrapper<DistributeLevel> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(DistributeLevel::getLevelId,level);
         if (StringUtils.isNotEmpty(name)) {
             wrapper.set(DistributeLevel::getLevelName, name);
         }

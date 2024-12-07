@@ -6,6 +6,8 @@ import cn.lime.anxin.model.vo.DetectOrderPageVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import java.util.List;
+
 /**
 * @author riang
 * @description 针对表【DetectOrder】的数据库操作Mapper
@@ -14,8 +16,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 */
 public interface DetectorderMapper extends BaseMapper<Detectorder> {
     Page<DetectOrderPageVo> page(Long bindUserId, String bindUserName, String productName, String code, Integer state,
-                                 Integer canUpdate,Integer isUpdated, Page<?> page);
+                                 Integer canUpdate,Integer isUpdated, Integer isBind, Page<?> page);
     DetectOrderDetailVo detail(Long id);
+
+    List<Long> getUpdateWaitingSendOrderIds();
 }
 
 

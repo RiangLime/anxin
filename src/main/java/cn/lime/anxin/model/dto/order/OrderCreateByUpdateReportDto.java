@@ -41,4 +41,7 @@ public class OrderCreateByUpdateReportDto implements Serializable {
     private String preCode;
     @Schema(description = "用户备注")
     private String remark;
+    @Schema(description = "折扣ID 序列化为String")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long discountId;
 }

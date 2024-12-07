@@ -7,12 +7,14 @@
     <resultMap id="BaseResultMap" type="cn.lime.anxin.model.entity.Advertisement">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="type" column="type" jdbcType="INTEGER"/>
             <result property="picture" column="picture" jdbcType="VARCHAR"/>
             <result property="gmtCreated" column="gmt_created" jdbcType="TIMESTAMP"/>
     </resultMap>
     <resultMap id="listVo" type="cn.lime.anxin.model.vo.AdListVo">
         <id property="adId" column="id" jdbcType="INTEGER"/>
         <result property="adTitle" column="title" jdbcType="VARCHAR"/>
+        <result property="adType" column="type" jdbcType="INTEGER"/>
         <result property="adPicture" column="picture" jdbcType="VARCHAR"/>
         <result property="adCreateTime" column="create_time" jdbcType="BIGINT"/>
         <result property="adViewCount" column="view_count" jdbcType="INTEGER"/>
@@ -20,6 +22,7 @@
     <resultMap id="detailVo" type="cn.lime.anxin.model.vo.AdDetailVo">
         <id property="adId" column="id" jdbcType="INTEGER"/>
         <result property="adTitle" column="title" jdbcType="VARCHAR"/>
+        <result property="adType" column="type" jdbcType="INTEGER"/>
         <result property="adPicture" column="picture" jdbcType="VARCHAR"/>
         <result property="adCreateTime" column="create_time" jdbcType="BIGINT"/>
         <result property="adViewCount" column="view_count" jdbcType="INTEGER"/>
@@ -38,6 +41,7 @@
         SELECT
             a.id,
             a.title ,
+            a.type,
             a.picture ,
             UNIX_TIMESTAMP(a.gmt_created) as create_time ,
             count(avl.id) as view_count
@@ -59,6 +63,7 @@
                 SELECT
                     a.id,
                     a.title ,
+                    a.type ,
                     a.picture ,
                     UNIX_TIMESTAMP(a.gmt_created) as create_time ,
                     count(avl.id) as view_count

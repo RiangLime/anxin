@@ -1,7 +1,9 @@
 package cn.lime.anxin.service.db.distribute;
 
 import cn.lime.anxin.model.entity.DistributeOrderLog;
+import cn.lime.core.common.PageResult;
 import cn.lime.mall.model.entity.Order;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -12,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface DistributeOrderLogService extends IService<DistributeOrderLog> {
     void appendLog(Long relateUserId, Long orderId,Integer orderPrice, Integer percent);
     void withdraw(Long userId,Integer price);
+    Page<DistributeOrderLog> pages(Long userId, Integer current, Integer pageSize);
 }
